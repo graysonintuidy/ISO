@@ -1,0 +1,42 @@
+/* ============================================
+   AppShell Component Styles
+   ============================================ */
+
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin-left: var(--sidebar-width);
+  transition: margin-left var(--transition-normal);
+}
+
+.main.sidebarCollapsed {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+.content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+  }
+
+  .main.sidebarCollapsed {
+    margin-left: 0;
+  }
+
+  .content {
+    padding: 16px;
+  }
+}

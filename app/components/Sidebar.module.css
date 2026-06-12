@@ -1,0 +1,274 @@
+/* ============================================
+   Sidebar Component Styles
+   ============================================ */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background-color: var(--color-sidebar-bg);
+  border-right: 1px solid var(--color-sidebar-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: width var(--transition-normal);
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+/* --- Brand / Logo Area --- */
+.brandArea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  height: var(--header-height);
+  border-bottom: 1px solid var(--color-sidebar-border);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.brandMark {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-inverse);
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.brandName {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity var(--transition-fast);
+}
+
+.collapsed .brandName {
+  opacity: 0;
+}
+
+/* --- Facility Selector --- */
+.facilitySelector {
+  padding: 12px 12px 4px;
+  flex-shrink: 0;
+}
+
+.facilitySelect {
+  width: 100%;
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition-fast);
+  appearance: auto;
+}
+
+.facilitySelect:focus {
+  border-color: var(--color-accent);
+}
+
+.collapsed .facilitySelector {
+  padding: 12px 8px 4px;
+}
+
+.collapsed .facilitySelect {
+  font-size: 0;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+/* --- Navigation --- */
+.nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 0;
+}
+
+.section {
+  padding: 0 12px;
+  margin-bottom: 4px;
+}
+
+.sectionLabel {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-sidebar-section-label);
+  padding: 12px 8px 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity var(--transition-fast);
+}
+
+.collapsed .sectionLabel {
+  opacity: 0;
+  height: 0;
+  padding: 6px 0 0;
+  overflow: hidden;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  color: var(--color-sidebar-text);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  position: relative;
+  text-decoration: none;
+}
+
+.navItem:hover {
+  background-color: var(--color-sidebar-hover);
+  color: var(--color-text-primary);
+}
+
+.navItem.active {
+  background-color: var(--color-sidebar-active-bg);
+  color: var(--color-sidebar-text-active);
+  font-weight: 600;
+}
+
+.navIcon {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navLabel {
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity var(--transition-fast);
+}
+
+.collapsed .navLabel {
+  opacity: 0;
+  width: 0;
+}
+
+.collapsed .navItem {
+  justify-content: center;
+  padding: 10px;
+}
+
+/* --- Tooltip (collapsed state) --- */
+.tooltip {
+  display: none;
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 10px;
+  background-color: var(--color-dark-blue);
+  color: var(--color-text-inverse);
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.collapsed .navItem:hover .tooltip {
+  display: block;
+}
+
+/* --- Toggle Button --- */
+.toggleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border-top: 1px solid var(--color-sidebar-border);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.toggleBtn:hover {
+  color: var(--color-text-primary);
+}
+
+/* --- Mobile Overlay --- */
+.overlay {
+  display: none;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+  }
+
+  .sidebar.mobileOpen {
+    transform: translateX(0);
+  }
+
+  .sidebar.collapsed {
+    width: var(--sidebar-width);
+  }
+
+  .collapsed .brandName,
+  .collapsed .sectionLabel,
+  .collapsed .navLabel {
+    opacity: 1;
+    width: auto;
+    height: auto;
+  }
+
+  .collapsed .facilitySelect {
+    font-size: 13px;
+    padding: 8px 10px;
+    text-align: left;
+  }
+
+  .collapsed .navItem {
+    justify-content: flex-start;
+    padding: 8px 10px;
+  }
+
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 99;
+  }
+
+  .overlay.visible {
+    display: block;
+  }
+}

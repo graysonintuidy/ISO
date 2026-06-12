@@ -1,0 +1,138 @@
+/* ============================================
+   Header Component Styles
+   ============================================ */
+
+.header {
+  position: sticky;
+  top: 0;
+  height: var(--header-height);
+  background-color: var(--color-header-bg);
+  border-bottom: 1px solid var(--color-header-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 50;
+  flex-shrink: 0;
+}
+
+/* --- Left Section --- */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menuBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.menuBtn:hover {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+}
+
+.logo {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* --- Center --- */
+.center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.pageTitle {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+/* --- Right Actions --- */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  position: relative;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.actionBtn:hover {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-primary);
+}
+
+/* --- Notification Badge --- */
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background-color: var(--color-error);
+  color: var(--color-text-inverse);
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* --- User Avatar --- */
+.avatarBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-size: 13px;
+  font-weight: 600;
+  margin-left: 4px;
+  transition: opacity var(--transition-fast);
+}
+
+.avatarBtn:hover {
+  opacity: 0.85;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .menuBtn {
+    display: flex;
+  }
+
+  .logo {
+    display: none;
+  }
+
+  .header {
+    padding: 0 12px;
+  }
+}
