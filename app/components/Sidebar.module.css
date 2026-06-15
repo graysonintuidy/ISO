@@ -1,5 +1,5 @@
 /* ============================================
-   Sidebar Component Styles
+   Sidebar Component Styles — Modern
    ============================================ */
 
 .sidebar {
@@ -8,7 +8,7 @@
   left: 0;
   bottom: 0;
   width: var(--sidebar-width);
-  background-color: var(--color-sidebar-bg);
+  background: var(--color-sidebar-bg);
   border-right: 1px solid var(--color-sidebar-border);
   display: flex;
   flex-direction: column;
@@ -37,22 +37,23 @@
   width: 32px;
   height: 32px;
   min-width: 32px;
-  border-radius: var(--radius-sm);
-  background-color: var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-inverse);
+  color: #FFFFFF;
   font-family: var(--font-heading);
   font-weight: 800;
   font-size: 14px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
 .brandName {
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 14px;
-  color: var(--color-text-primary);
+  color: var(--color-sidebar-text-active);
   white-space: nowrap;
   overflow: hidden;
   opacity: 1;
@@ -74,18 +75,24 @@
   padding: 8px 10px;
   font-family: var(--font-body);
   font-size: 13px;
-  color: var(--color-text-primary);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  color: var(--color-sidebar-text);
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-sidebar-border);
+  border-radius: var(--radius-md);
   cursor: pointer;
   outline: none;
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
   appearance: auto;
 }
 
 .facilitySelect:focus {
   border-color: var(--color-accent);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.facilitySelect option {
+  background-color: var(--color-sidebar-bg);
+  color: var(--color-sidebar-text);
 }
 
 .collapsed .facilitySelector {
@@ -117,7 +124,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-sidebar-section-label);
+  color: var(--color-sidebar-section);
   padding: 12px 8px 6px;
   white-space: nowrap;
   overflow: hidden;
@@ -139,23 +146,36 @@
   padding: 8px 10px;
   border-radius: var(--radius-md);
   color: var(--color-sidebar-text);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
-  transition: background-color var(--transition-fast), color var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
   position: relative;
   text-decoration: none;
 }
 
 .navItem:hover {
   background-color: var(--color-sidebar-hover);
-  color: var(--color-text-primary);
+  color: var(--color-sidebar-text-active);
+  text-decoration: none;
 }
 
 .navItem.active {
   background-color: var(--color-sidebar-active-bg);
   color: var(--color-sidebar-text-active);
   font-weight: 600;
+}
+
+.navItem.active::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background: var(--color-accent);
+  border-radius: 0 3px 3px 0;
 }
 
 .navIcon {
@@ -183,6 +203,10 @@
   padding: 10px;
 }
 
+.collapsed .navItem.active::before {
+  left: -12px;
+}
+
 /* --- Tooltip (collapsed state) --- */
 .tooltip {
   display: none;
@@ -192,13 +216,14 @@
   transform: translateY(-50%);
   padding: 4px 10px;
   background-color: var(--color-dark-blue);
-  color: var(--color-text-inverse);
+  color: #FFFFFF;
   font-size: 12px;
   font-weight: 500;
   border-radius: var(--radius-sm);
   white-space: nowrap;
   z-index: 200;
   pointer-events: none;
+  box-shadow: var(--shadow-md);
 }
 
 .collapsed .navItem:hover .tooltip {
@@ -212,13 +237,14 @@
   justify-content: center;
   padding: 12px;
   border-top: 1px solid var(--color-sidebar-border);
-  color: var(--color-text-muted);
+  color: var(--color-sidebar-text);
   flex-shrink: 0;
-  transition: color var(--transition-fast);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
 }
 
 .toggleBtn:hover {
-  color: var(--color-text-primary);
+  color: var(--color-sidebar-text-active);
+  background-color: var(--color-sidebar-hover);
 }
 
 /* --- Mobile Overlay --- */
@@ -264,8 +290,9 @@
     display: none;
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: 99;
+    backdrop-filter: blur(2px);
   }
 
   .overlay.visible {

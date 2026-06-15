@@ -1,19 +1,8 @@
-import { Open_Sans, Nunito } from 'next/font/google';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import '@/app/globals.css';
 import ThemeProvider from '@/app/components/ThemeProvider';
 import AppShell from '@/app/components/AppShell';
-
-const openSans = Open_Sans({
-  subsets: ['latin'],
-  variable: '--font-open-sans',
-  display: 'swap',
-});
-
-const nunito = Nunito({
-  subsets: ['latin'],
-  variable: '--font-nunito',
-  display: 'swap',
-});
 
 export const metadata = {
   title: {
@@ -25,7 +14,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${openSans.variable} ${nunito.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
       <body>
         <ThemeProvider>
           <AppShell>{children}</AppShell>

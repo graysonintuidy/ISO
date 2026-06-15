@@ -12,7 +12,7 @@
 
 .pageTitle {
   font-size: var(--text-2xl);
-  font-weight: 700;
+  font-weight: 600;
   font-family: var(--font-heading);
 }
 
@@ -76,7 +76,7 @@
 
 .complianceValue {
   font-size: var(--text-3xl);
-  font-weight: 800;
+  font-weight: 700;
   font-family: var(--font-heading);
   color: var(--color-text-primary);
   margin-bottom: var(--space-1);

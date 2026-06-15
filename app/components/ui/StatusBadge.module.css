@@ -1,3 +1,7 @@
+/* ============================================
+   StatusBadge Component Styles — Modern
+   ============================================ */
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -5,16 +9,17 @@
   font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 2px 10px;
+  padding: 3px 10px;
   border-radius: 100px;
   line-height: 1.5;
   white-space: nowrap;
+  transition: transform var(--transition-fast);
 }
 
-/* Status variants */
+/* Status variants — using real colors, not missing vars */
 .online {
-  background-color: var(--color-severity-success-bg);
-  color: var(--color-success);
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
 }
 
 .offline {
@@ -23,13 +28,13 @@
 }
 
 .warning {
-  background-color: var(--color-severity-warning-bg);
-  color: var(--color-warning);
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning-text);
 }
 
 .critical {
-  background-color: var(--color-severity-critical-bg);
-  color: var(--color-error);
+  background-color: var(--color-error-bg);
+  color: var(--color-error-text);
 }
 
 .pending {
@@ -38,8 +43,8 @@
 }
 
 .maintenance {
-  background-color: var(--color-severity-default-bg);
-  color: var(--color-text-secondary);
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning-text);
 }
 
 /* Dot indicator */
@@ -52,6 +57,7 @@
 
 .dotOnline {
   background-color: var(--color-success);
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
 }
 
 .dotOffline {
@@ -60,10 +66,12 @@
 
 .dotWarning {
   background-color: var(--color-warning);
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.3);
 }
 
 .dotCritical {
   background-color: var(--color-error);
+  box-shadow: 0 0 6px rgba(220, 38, 38, 0.4);
 }
 
 .dotPending {
@@ -71,5 +79,5 @@
 }
 
 .dotMaintenance {
-  background-color: var(--color-text-secondary);
+  background-color: var(--color-warning);
 }

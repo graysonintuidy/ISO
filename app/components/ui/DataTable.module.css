@@ -1,7 +1,6 @@
 .wrapper {
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -25,14 +24,15 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--color-text-secondary);
-  background-color: var(--color-severity-default-bg);
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg-subtle);
+  border-bottom: 2px solid var(--color-border);
   white-space: nowrap;
   user-select: none;
 }
 
 .sortable {
   cursor: pointer;
+  transition: color var(--transition-fast);
 }
 
 .sortable:hover {
@@ -62,11 +62,11 @@
 }
 
 .table tbody tr {
-  transition: background-color 0.1s ease;
+  transition: background-color 0.15s ease;
 }
 
 .table tbody tr:hover {
-  background-color: var(--color-severity-default-bg);
+  background-color: var(--color-surface-hover);
 }
 
 .clickableRow {
@@ -94,6 +94,7 @@
   border-top: 1px solid var(--color-border-subtle);
   font-size: 0.8125rem;
   color: var(--color-text-secondary);
+  background-color: var(--color-surface-raised);
 }
 
 .pageInfo {
@@ -115,17 +116,18 @@
   width: 32px;
   height: 32px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background-color: var(--color-surface);
   color: var(--color-text-secondary);
   font-size: 0.8125rem;
-  transition: background-color 0.1s ease, border-color 0.1s ease;
+  transition: all 0.15s ease;
 }
 
 .pageButton:hover:not(:disabled) {
-  background-color: var(--color-severity-default-bg);
+  background-color: var(--color-surface-hover);
   border-color: var(--color-primary);
   color: var(--color-primary);
+  transform: translateY(-1px);
 }
 
 .pageButton:disabled {
@@ -136,11 +138,12 @@
 .pageButtonActive {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
-  color: var(--color-text-inverse);
+  color: #FFFFFF;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
 }
 
 .pageButtonActive:hover:not(:disabled) {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
-  color: var(--color-text-inverse);
+  color: #FFFFFF;
 }

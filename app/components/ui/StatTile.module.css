@@ -1,36 +1,62 @@
 .tile {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: 20px 24px;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   display: flex;
   flex-direction: column;
   gap: 4px;
   min-width: 180px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tile::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .tile:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+  border-color: var(--color-border);
 }
 
-/* Severity borders */
+.tile:hover::after {
+  opacity: 1;
+}
+
+/* Severity top accent only — no left-border indicators */
 .severityDefault {
-  border-left: 3px solid var(--color-severity-default-border);
+}
+.severityDefault::after {
+  background: var(--color-border);
 }
 
 .severitySuccess {
-  border-left: 3px solid var(--color-success);
+}
+.severitySuccess::after {
+  background: linear-gradient(90deg, var(--color-success) 0%, transparent 100%);
 }
 
 .severityWarning {
-  border-left: 3px solid var(--color-warning);
+}
+.severityWarning::after {
+  background: linear-gradient(90deg, var(--color-warning) 0%, transparent 100%);
 }
 
 .severityCritical {
-  border-left: 3px solid var(--color-error);
+}
+.severityCritical::after {
+  background: linear-gradient(90deg, var(--color-error) 0%, transparent 100%);
 }
 
 .header {
@@ -68,7 +94,7 @@
 .value {
   font-family: var(--font-heading);
   font-size: 2rem;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.1;
   color: var(--color-text-primary);
   margin-top: 4px;

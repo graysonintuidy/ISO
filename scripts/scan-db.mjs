@@ -1,0 +1,29 @@
+const API_KEY = 'vntg_7aEF3glus_kuqwsdEY9ir910UhmNFbpUqaABhN7m4hA';
+const MCP_URL = 'https://mcp.intuidy.com/mcp';
+let sessionId = null;
+async function mcpPost(p) {
+  const h = { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream', 'Authorization': `Bearer ${API_KEY}` };
+  if (sessionId) h['Mcp-Session-Id'] = sessionId;
+  const r = await fetch(MCP_URL, { method: 'POST', headers: h, body: JSON.stringify(p) });
+  const s = r.headers.get('mcp-session-id'); if (s) sessionId = s;
+  const t = await r.text();
+  try { return JSON.parse(t); } catch { for (const l of t.split('\n')) { if (l.startsWith('data: ')) { try { return JSON.parse(l.slice(6)); } catch {} } } return { raw: t.slice(0,500) }; }
+}
+async function callTool(name, args) {
+  const r = await mcpPost({ jsonrpc: '2.0', id: Date.now(), method: 'tools/call', params: { name, arguments: args } });
+  const c = r?.result?.content?.[0]?.text;
+  if (c) return c;
+  return JSON.stringify(r);
+}
+async function main() {
+  await mcpPost({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'scan', version: '1.0.0' } } });
+  await mcpPost({ jsonrpc: '2.0', method: 'notifications/initialized' });
+  
+  // Try the project's API key instead
+  const API_KEY_2 = 'vntg_I8B07QTVVff24CXHEvE_UGg1GBIkkbWFxu-nojD3JuU';
+  
+  // Re-list with fresh session
+  const dbs = await callTool('list_managed_databases', {});
+  console.log('Full DB list:\n' + dbs);
+}
+main().catch(e => console.error(e));

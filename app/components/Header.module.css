@@ -1,5 +1,5 @@
 /* ============================================
-   Header Component Styles
+   Header Component Styles — Modern
    ============================================ */
 
 .header {
@@ -14,6 +14,12 @@
   padding: 0 20px;
   z-index: 50;
   flex-shrink: 0;
+  backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme='dark'] .header {
+  background-color: rgba(30, 35, 41, 0.9);
 }
 
 /* --- Left Section --- */
@@ -29,13 +35,13 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: var(--color-text-secondary);
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .menuBtn:hover {
-  background-color: var(--color-surface-raised);
+  background-color: var(--color-surface-hover);
   color: var(--color-text-primary);
 }
 
@@ -72,15 +78,20 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: var(--color-text-secondary);
   position: relative;
-  transition: background-color var(--transition-fast), color var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
 .actionBtn:hover {
-  background-color: var(--color-surface-raised);
+  background-color: var(--color-surface-hover);
   color: var(--color-text-primary);
+  transform: scale(1.05);
+}
+
+.actionBtn:active {
+  transform: scale(0.95);
 }
 
 /* --- Notification Badge --- */
@@ -93,13 +104,19 @@
   padding: 0 4px;
   border-radius: 8px;
   background-color: var(--color-error);
-  color: var(--color-text-inverse);
+  color: #FFFFFF;
   font-size: 10px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
+  animation: pulse-dot 2s ease infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(220, 38, 38, 0); }
 }
 
 /* --- User Avatar --- */
@@ -107,19 +124,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background-color: var(--color-primary);
-  color: var(--color-text-inverse);
+  background: var(--color-primary);
+  color: #FFFFFF;
   font-size: 13px;
   font-weight: 600;
   margin-left: 4px;
-  transition: opacity var(--transition-fast);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
 }
 
 .avatarBtn:hover {
-  opacity: 0.85;
+  transform: scale(1.08);
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
 }
 
 /* --- Responsive --- */

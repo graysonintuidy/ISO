@@ -12,18 +12,18 @@ export const defaultBranding = {
   logoDarkUrl: null, // optional: a dark version of the logo for light backgrounds
   faviconUrl: 'https://www.nationalbeef.com/wp-content/uploads/2026/02/nb-favicon.svg',
   colors: {
-    primary: '#002D72',      // Midnight navy
-    primaryLight: '#194280',
-    accent: '#009DD9',       // Cerulean blue
-    accentLight: '#19ACE3',
-    darkBlue: '#001639',
-    error: '#BF0000',
+    primary: '#2563eb',      // Blue-600 (Vantage style)
+    primaryLight: '#1d4ed8', // Blue-700 (hover)
+    accent: '#7c3aed',       // Violet-600
+    accentLight: '#6d28d9',  // Violet-700 (hover)
+    darkBlue: '#0f172a',     // Slate-900 (sidebar)
+    error: '#DC2626',
     warning: '#F59E0B',
     success: '#10B981',
   },
   fonts: {
-    body: "'Open Sans', sans-serif",
-    heading: "'Nunito', sans-serif",
+    body: "var(--font-geist-sans), -apple-system, sans-serif",
+    heading: "var(--font-geist-sans), -apple-system, sans-serif",
   },
 };
 

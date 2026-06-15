@@ -1,7 +1,8 @@
+/* ============================================
+   AlertFeed Component Styles — Modern
+   ============================================ */
+
 .feed {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-md);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -18,7 +19,7 @@
   gap: 12px;
   padding: 14px 16px;
   border-bottom: 1px solid var(--color-border-subtle);
-  transition: background-color 0.1s ease;
+  transition: background-color 0.15s ease;
 }
 
 .alertItem:last-child {
@@ -26,7 +27,7 @@
 }
 
 .alertItem:hover {
-  background-color: var(--color-severity-default-bg);
+  background-color: var(--color-surface-hover);
 }
 
 /* Severity color bar on the left */
@@ -50,7 +51,13 @@
 }
 
 .barEmergency {
-  background-color: var(--color-error);
+  background: linear-gradient(180deg, var(--color-error) 0%, #FF6B6B 100%);
+  animation: pulse-bar 1.5s ease infinite;
+}
+
+@keyframes pulse-bar {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 /* Content area */

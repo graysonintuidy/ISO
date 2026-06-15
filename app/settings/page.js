@@ -33,8 +33,8 @@ export default function SettingsPage() {
   const [brandingForm, setBrandingForm] = useState({
     company_name: 'National Beef',
     logo_url: '',
-    primary_color: '#002D72',
-    accent_color: '#009DD9',
+    primary_color: '#2563eb',
+    accent_color: '#7c3aed',
   });
 
   const checkSystemStatus = useCallback(async () => {

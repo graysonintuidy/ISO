@@ -1,12 +1,23 @@
+/* ============================================
+   ProductionLineCard Styles — Modern
+   ============================================ */
+
 .card {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: 20px 24px;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--color-border);
 }
 
 /* Header */
@@ -63,6 +74,13 @@
 
 .dotRunning {
   background-color: var(--color-success);
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+  animation: pulse-running 2s ease infinite;
+}
+
+@keyframes pulse-running {
+  0%, 100% { box-shadow: 0 0 6px rgba(16, 185, 129, 0.4); }
+  50% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.2); }
 }
 
 .dotStopped {
@@ -71,10 +89,18 @@
 
 .dotMaintenance {
   background-color: var(--color-warning);
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.3);
 }
 
 .dotAlert {
   background-color: var(--color-error);
+  box-shadow: 0 0 6px rgba(220, 38, 38, 0.4);
+  animation: pulse-alert 1s ease infinite;
+}
+
+@keyframes pulse-alert {
+  0%, 100% { box-shadow: 0 0 6px rgba(220, 38, 38, 0.4); }
+  50% { box-shadow: 0 0 12px rgba(220, 38, 38, 0.1); }
 }
 
 .statusText {
@@ -129,7 +155,7 @@
 
 .throughputBarTrack {
   height: 6px;
-  background-color: var(--color-severity-default-bg);
+  background-color: var(--color-surface-hover);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -137,19 +163,19 @@
 .throughputBarFill {
   height: 100%;
   border-radius: 3px;
-  transition: width 0.3s ease;
+  transition: width 0.4s ease;
 }
 
 .fillNormal {
-  background-color: var(--color-success);
+  background: linear-gradient(90deg, var(--color-success) 0%, #34D399 100%);
 }
 
 .fillWarning {
-  background-color: var(--color-warning);
+  background: linear-gradient(90deg, var(--color-warning) 0%, #FBBF24 100%);
 }
 
 .fillCritical {
-  background-color: var(--color-error);
+  background: linear-gradient(90deg, var(--color-error) 0%, #F87171 100%);
 }
 
 /* Footer */
