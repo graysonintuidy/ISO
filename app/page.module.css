@@ -1,6 +1,7 @@
 .dashboard {
   padding: var(--space-6);
-  max-width: 1600px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 /* Page Header */
@@ -44,17 +45,18 @@
 /* Stats Row */
 .statsRow {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
   margin-bottom: var(--space-6);
 }
 
 /* Main Grid */
 .mainGrid {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr 340px;
   gap: var(--space-5);
   margin-bottom: var(--space-5);
+  min-width: 0;
 }
 
 @media (max-width: 1200px) {
@@ -67,12 +69,16 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .rightCol {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .countBadge {

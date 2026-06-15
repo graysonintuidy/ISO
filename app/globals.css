@@ -318,6 +318,8 @@ img {
   padding: var(--space-5);
   box-shadow: var(--shadow-xs);
   transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .card:hover {

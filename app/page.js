@@ -16,7 +16,7 @@ import {
   Bot,
 } from 'lucide-react';
 import StatTile from '@/app/components/ui/StatTile';
-import CameraPlaceholder from '@/app/components/ui/CameraPlaceholder';
+import CameraFeedGrid from '@/app/components/ui/CameraFeedGrid';
 import ProductionLineCard from '@/app/components/ui/ProductionLineCard';
 import AlertFeed from '@/app/components/ui/AlertFeed';
 import DataTable from '@/app/components/ui/DataTable';
@@ -203,30 +203,9 @@ export default function DashboardPage() {
           <div className="card">
             <div className="card-header">
               <span className="card-title">Camera Feeds</span>
-              <span className={styles.countBadge}>
-                {cameras.length > 0 ? `${cameras.length} cameras` : 'No cameras configured'}
-              </span>
+              <span className={styles.countBadge}>16 cameras</span>
             </div>
-            <div className={styles.cameraGrid}>
-              {cameras.length > 0 ? (
-                cameras.slice(0, 4).map((cam) => (
-                  <CameraPlaceholder
-                    key={cam.id}
-                    name={cam.name}
-                    location={cam.location_description}
-                    status={cam.status}
-                    cameraId={cam.id}
-                  />
-                ))
-              ) : (
-                <>
-                  <CameraPlaceholder name="Camera 1" location="Main Floor — Line 1" status="pending_setup" cameraId="cam-1" />
-                  <CameraPlaceholder name="Camera 2" location="Main Floor — Line 2" status="pending_setup" cameraId="cam-2" />
-                  <CameraPlaceholder name="Camera 3" location="Entrance — Loading Dock" status="pending_setup" cameraId="cam-3" />
-                  <CameraPlaceholder name="Camera 4" location="Hazard Zone — Cold Storage" status="pending_setup" cameraId="cam-4" />
-                </>
-              )}
-            </div>
+            <CameraFeedGrid cameras={cameras} />
           </div>
 
           {/* Production Lines */}
