@@ -20,6 +20,8 @@ import {
   MapPin,
   ChevronDown,
   Check,
+  ScanEye,
+  Cpu,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -29,23 +31,20 @@ const NAV_SECTIONS = [
     items: [
       { href: '/', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/cameras', label: 'Cameras', icon: Camera },
-      { href: '/production-lines', label: 'Production Lines', icon: Factory },
+      { href: '/production-lines/cameras', label: 'Line Cameras', icon: ScanEye },
+      { href: '/production-lines/machines', label: 'Machine Overview', icon: Cpu },
     ],
   },
   {
     label: 'SAFETY',
     items: [
       { href: '/safety-zones', label: 'Safety Zones', icon: ShieldAlert },
-      { href: '/employees', label: 'Employees', icon: Users },
-      { href: '/forklifts', label: 'Forklifts', icon: Truck },
     ],
   },
   {
     label: 'OPERATIONS',
     items: [
       { href: '/incidents', label: 'Incidents', icon: AlertTriangle },
-      { href: '/reports', label: 'Reports', icon: FileText },
-      { href: '/audit-log', label: 'Audit Log', icon: ScrollText },
     ],
   },
   {
@@ -112,7 +111,12 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
       <aside className={sidebarClass}>
         {/* Brand */}
         <div className={styles.brandArea}>
-          <div className={styles.brandMark}>NB</div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className={styles.brandMark}
+            src="https://www.intuidy.com/_next/image?url=%2Fintuidy-logo.png&w=32&q=75"
+            alt="Intuidy logo"
+          />
           <span className={styles.brandName}>National Beef AI</span>
         </div>
 
@@ -161,17 +165,19 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                 const isActive =
                   item.href === '/'
                     ? pathname === '/'
-                    : pathname.startsWith(item.href);
+                    : item.indent
+                    ? pathname.startsWith(item.href)
+                    : pathname === item.href;
 
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`${styles.navItem} ${isActive ? styles.active : ''}`}
+                    className={`${styles.navItem} ${isActive ? styles.active : ''} ${item.indent ? styles.navItemIndent : ''}`}
                     onClick={onMobileClose}
                   >
                     <span className={styles.navIcon}>
-                      <Icon size={20} />
+                      <Icon size={item.indent ? 16 : 20} />
                     </span>
                     <span className={styles.navLabel}>{item.label}</span>
                     <span className={styles.tooltip}>{item.label}</span>

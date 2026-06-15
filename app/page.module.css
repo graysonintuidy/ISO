@@ -1,27 +1,27 @@
 .dashboard {
-  padding: var(--space-6);
+  padding: var(--space-5);
   max-width: 100%;
-  overflow: hidden;
 }
 
 /* Page Header */
 .pageHeader {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-4);
+  flex-shrink: 0;
 }
 
 .pageTitle {
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   font-weight: 600;
   font-family: var(--font-heading);
 }
 
 .pageSubtitle {
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   color: var(--color-text-secondary);
-  margin-top: var(--space-1);
+  margin-top: 2px;
 }
 
 .headerActions {
@@ -45,18 +45,21 @@
 /* Stats Row */
 .statsRow {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(6, 1fr);
   gap: var(--space-3);
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-4);
+  flex-shrink: 0;
 }
 
-/* Main Grid */
+/* ============================================================
+   BOTTOM GRID — Incidents (left) + Chat/Alerts (right)
+   ============================================================ */
 .mainGrid {
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: var(--space-5);
-  margin-bottom: var(--space-5);
-  min-width: 0;
+  grid-template-columns: 3fr 2fr;
+  gap: var(--space-4);
+  align-items: start;
+  margin-top: var(--space-4);
 }
 
 @media (max-width: 1200px) {
@@ -68,17 +71,15 @@
 .leftCol {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
   min-width: 0;
-  overflow: hidden;
 }
 
 .rightCol {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
   min-width: 0;
-  overflow: hidden;
 }
 
 .countBadge {
@@ -87,156 +88,75 @@
   font-weight: 500;
 }
 
-/* Camera Grid */
-.cameraGrid {
+/* ============================================================
+   TOP ROW — Camera + Production Lines side by side
+   ============================================================ */
+.topRow {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-3);
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
-  .cameraGrid {
-    grid-template-columns: 1fr;
-  }
+/* Compact card variant for dashboard panels */
+.compactCard {
+  padding: var(--space-3);
 }
 
-/* Production Grid */
+.compactCard .card-header,
+.compactCard > div:first-child {
+  margin-bottom: var(--space-2);
+}
+
+/* Production Grid — 2×2 for 4 lines */
 .productionGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: var(--space-3);
 }
 
-/* Chat Card */
-.chatCard {
-  display: flex;
-  flex-direction: column;
-}
 
-.chatMessages {
-  flex: 1;
-  max-height: 360px;
-  overflow-y: auto;
-  padding: var(--space-3) 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.chatWelcome {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: var(--space-6) var(--space-4);
-  color: var(--color-text-tertiary);
-}
-
-.chatWelcome svg {
-  margin-bottom: var(--space-3);
-  opacity: 0.5;
-}
-
-.chatWelcome p {
-  font-size: var(--text-sm);
-  margin-bottom: var(--space-4);
-}
-
-.chatSuggestions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  width: 100%;
-}
-
-.chatSuggestion {
-  width: 100%;
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--text-xs);
-  font-family: var(--font-body);
-  color: var(--color-text-secondary);
-  background: var(--color-surface-hover);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  text-align: left;
-  transition: border-color var(--transition-fast);
-}
-
-.chatSuggestion:hover {
-  border-color: var(--color-accent);
-  color: var(--color-text-primary);
-}
-
-.chatMessage {
-  display: flex;
-  gap: var(--space-2);
-  align-items: flex-start;
-}
-
-.chatMessage.user {
-  justify-content: flex-end;
-}
-
-.chatMessage.assistant {
-  justify-content: flex-start;
-}
-
-.chatAvatar {
-  flex-shrink: 0;
-  color: var(--color-accent);
-  margin-top: 2px;
-}
-
-.chatBubble {
-  max-width: 85%;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-lg);
-  font-size: var(--text-sm);
-  line-height: 1.5;
-}
-
-.user .chatBubble {
-  background: var(--color-primary);
-  color: var(--color-text-on-brand);
-  border-bottom-right-radius: var(--radius-sm);
-}
-
-.assistant .chatBubble {
-  background: var(--color-surface-hover);
-  color: var(--color-text-primary);
-  border-bottom-left-radius: var(--radius-sm);
-}
-
-.chatForm {
-  display: flex;
-  gap: var(--space-2);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border);
-  margin-top: var(--space-2);
-}
-
-.chatInput {
-  flex: 1;
-}
 
 /* Incident Card */
 .incidentCard {
-  margin-bottom: var(--space-6);
+}
+
+/* Alerts card — capped height with internal scroll */
+.scrollableCard {
+  max-height: 480px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Responsive ────────────────────────── */
+@media (max-width: 900px) {
+  .topRow {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
   .dashboard {
     padding: var(--space-4);
+    height: auto;
   }
 
   .statsRow {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .pageHeader {
     flex-direction: column;
     gap: var(--space-2);
+  }
+
+  .productionGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

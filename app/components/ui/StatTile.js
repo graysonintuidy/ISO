@@ -41,7 +41,7 @@ export default function StatTile({
         <span className={styles.title}>{title}</span>
         {IconComponent && (
           <span className={iconClass}>
-            <IconComponent size={18} />
+            <IconComponent size={16} />
           </span>
         )}
       </div>

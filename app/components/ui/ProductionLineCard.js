@@ -65,7 +65,7 @@ export default function ProductionLineCard({
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerLeft}>
-          <Factory size={22} className={styles.factoryIcon} />
+          <Factory size={18} className={styles.factoryIcon} />
           <div className={styles.nameBlock}>
             <div className={styles.name}>{name}</div>
             {lineNumber !== undefined && lineNumber !== null && (

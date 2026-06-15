@@ -6,11 +6,11 @@
   background-color: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
-  padding: 20px 24px;
+  padding: 16px 18px;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -25,13 +25,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .headerLeft {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
 }
 
@@ -46,14 +46,14 @@
 
 .name {
   font-family: var(--font-heading);
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.25;
 }
 
 .lineNumber {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   color: var(--color-text-muted);
   font-weight: 500;
 }
@@ -130,7 +130,7 @@
 .throughputSection {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .throughputLabel {
@@ -154,15 +154,15 @@
 }
 
 .throughputBarTrack {
-  height: 6px;
+  height: 4px;
   background-color: var(--color-surface-hover);
-  border-radius: 3px;
+  border-radius: 2px;
   overflow: hidden;
 }
 
 .throughputBarFill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 2px;
   transition: width 0.4s ease;
 }
 
@@ -182,7 +182,7 @@
 .footer {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   font-size: 0.6875rem;
   color: var(--color-text-muted);
   padding-top: 4px;
