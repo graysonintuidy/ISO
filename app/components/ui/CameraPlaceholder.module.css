@@ -2,6 +2,27 @@
    CameraPlaceholder Component Styles — Modern
    ============================================ */
 
+/* Wrapping link — no underline, block display */
+.placeholderLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--radius-lg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.placeholderLink:hover {
+  text-decoration: none;
+  transform: scale(1.015);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+
+.placeholderLink:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-lg);
+}
+
 .placeholder {
   position: relative;
   width: 100%;
@@ -14,12 +35,7 @@
   justify-content: center;
   gap: 12px;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.placeholder:hover {
-  transform: scale(1.01);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
 }
 
 /* Subtle scan-line overlay for realism */
@@ -58,6 +74,44 @@
   z-index: 2;
 }
 
+/* ── Live / Recording Indicator ─────────────── */
+.liveIndicator {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  border-radius: 100px;
+  z-index: 3;
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  background: #ef4444;
+  border-radius: 50%;
+  animation: livePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  50% { opacity: 0.5; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
+}
+
+.liveLabel {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  color: #ef4444;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── Status Label ───────────────────────────── */
 .statusLabel {
   font-family: var(--font-body);
   font-size: 0.6875rem;
@@ -94,15 +148,33 @@
   color: #FBBF24;
 }
 
+/* ── Bottom Bar ─────────────────────────────── */
+.bottomBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
 .cameraName {
   font-family: var(--font-body);
   font-size: 0.6875rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.3);
-  position: absolute;
-  bottom: 12px;
-  left: 16px;
+  color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  z-index: 2;
+}
+
+.timestamp {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.5625rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.02em;
 }

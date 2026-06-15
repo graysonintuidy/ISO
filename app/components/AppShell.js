@@ -8,7 +8,7 @@ import styles from './AppShell.module.css';
 const MOBILE_BREAKPOINT = 768;
 
 export default function AppShell({ children }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Auto-collapse sidebar on mobile

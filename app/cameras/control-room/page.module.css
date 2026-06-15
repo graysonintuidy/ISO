@@ -1,0 +1,557 @@
+/* ============================================================
+   Control Room — Dark-optimized surveillance layout
+   ============================================================ */
+
+/* Full-page container — always dark regardless of theme */
+.controlRoom {
+  --cr-bg: #09090b;
+  --cr-surface: #111113;
+  --cr-surface-elevated: #18181b;
+  --cr-border: rgba(255, 255, 255, 0.06);
+  --cr-border-strong: rgba(255, 255, 255, 0.1);
+  --cr-text-primary: #f4f4f5;
+  --cr-text-secondary: #a1a1aa;
+  --cr-text-muted: #52525b;
+  --cr-accent: #3b82f6;
+  --cr-accent-dim: rgba(59, 130, 246, 0.15);
+  --cr-success: #22c55e;
+  --cr-error: #ef4444;
+  --cr-warning: #f59e0b;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--cr-bg);
+  color: var(--cr-text-primary);
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+
+/* Fullscreen state */
+.controlRoom.isFullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+/* ============================================================
+   HEADER BAR — Compact glassmorphism
+   ============================================================ */
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: rgba(17, 17, 19, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--cr-border);
+  z-index: 10;
+  flex-shrink: 0;
+  min-height: 48px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.titleIcon {
+  color: var(--cr-accent);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--cr-text-primary);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.cameraBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cr-accent);
+  background: var(--cr-accent-dim);
+  border-radius: 100px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.headerDivider {
+  width: 1px;
+  height: 20px;
+  background: var(--cr-border-strong);
+  flex-shrink: 0;
+}
+
+.headerCenter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  justify-content: center;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   GRID LAYOUT SELECTOR — Compact pill toggles
+   ============================================================ */
+.gridSelector {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 100px;
+  padding: 2px;
+  border: 1px solid var(--cr-border);
+}
+
+.gridBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--cr-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.gridBtn:hover {
+  color: var(--cr-text-secondary);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.gridBtn.active {
+  color: var(--cr-text-primary);
+  background: var(--cr-accent);
+  box-shadow: 0 1px 4px rgba(59, 130, 246, 0.3);
+}
+
+/* ============================================================
+   FILTER SELECT
+   ============================================================ */
+.filterSelect {
+  appearance: none;
+  padding: 4px 28px 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--cr-text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--cr-border);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.filterSelect:hover {
+  border-color: var(--cr-border-strong);
+  color: var(--cr-text-primary);
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--cr-accent);
+  box-shadow: 0 0 0 2px var(--cr-accent-dim);
+}
+
+.filterSelect option {
+  background: #18181b;
+  color: var(--cr-text-primary);
+}
+
+/* ============================================================
+   HEADER ICON BUTTONS
+   ============================================================ */
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: var(--cr-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.iconBtn:hover {
+  color: var(--cr-text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--cr-border);
+}
+
+.iconBtn.active {
+  color: var(--cr-accent);
+  background: var(--cr-accent-dim);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--cr-text-muted);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--cr-border);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.backLink:hover {
+  color: var(--cr-text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--cr-border-strong);
+  text-decoration: none;
+}
+
+/* ============================================================
+   MAIN CONTENT — Camera grid area
+   ============================================================ */
+.content {
+  flex: 1;
+  padding: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   CAMERA GRID — Dynamic layouts
+   ============================================================ */
+.cameraGrid {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Grid layout variants */
+.grid1x1 {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+.grid2x2 {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.grid3x3 {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+
+.grid4x4 {
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+}
+
+.grid5x5 {
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+}
+
+.cameraGrid > * {
+  min-height: 0;
+  min-width: 0;
+}
+
+/* ============================================================
+   CAMERA TILE WRAPPER
+   ============================================================ */
+.cameraTile {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--cr-surface);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.cameraTile:hover {
+  border-color: var(--cr-border-strong);
+}
+
+.cameraTile > * {
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================================
+   FOCUSED VIEW — 1+N layout
+   ============================================================ */
+.focusedLayout {
+  display: grid;
+  grid-template-columns: 1fr 40%;
+  gap: 4px;
+  flex: 1;
+  min-height: 0;
+}
+
+.focusedMain {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--cr-surface);
+  min-height: 0;
+}
+
+.focusedMain > * {
+  width: 100%;
+  height: 100%;
+}
+
+.focusedBackBtn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.focusedBackBtn:hover {
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.focusedSidebar {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 4px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.focusedSidebar .cameraTile {
+  aspect-ratio: auto;
+}
+
+/* ============================================================
+   STATUS BAR — Bottom strip
+   ============================================================ */
+.statusBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 4px var(--space-4);
+  background: rgba(17, 17, 19, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid var(--cr-border);
+  flex-shrink: 0;
+  min-height: 28px;
+}
+
+.statusItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--cr-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusDotOnline {
+  background: var(--cr-success);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
+
+.statusDotOffline {
+  background: var(--cr-error);
+}
+
+.statusDotRecording {
+  background: var(--cr-error);
+  animation: pulse-recording 1.5s ease-in-out infinite;
+}
+
+.statusSpacer {
+  flex: 1;
+}
+
+.statusTimestamp {
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--cr-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes pulse-recording {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ============================================================
+   LOADING STATE
+   ============================================================ */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: var(--space-3);
+  color: var(--cr-text-muted);
+}
+
+.loadingState p {
+  font-size: var(--text-sm);
+}
+
+/* ============================================================
+   EMPTY SLOT — Dark placeholder boxes for empty grid
+   ============================================================ */
+.emptySlot {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(145deg, #0c0c0e 0%, #111113 50%, #151518 100%);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Scan-line overlay */
+.emptySlot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.005) 2px,
+    rgba(255, 255, 255, 0.005) 4px
+  );
+  pointer-events: none;
+}
+
+.emptySlotIcon {
+  color: rgba(255, 255, 255, 0.06);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px) {
+  .focusedLayout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 60% 40%;
+  }
+
+  .focusedSidebar {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: unset;
+  }
+
+  .headerCenter {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .headerLeft {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .headerRight {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .cameraGrid {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto !important;
+  }
+
+  .cameraTile {
+    aspect-ratio: 16 / 9;
+  }
+
+  .focusedLayout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .focusedSidebar {
+    grid-template-columns: repeat(2, 1fr);
+    max-height: 40vh;
+  }
+
+  .gridSelector {
+    display: none;
+  }
+}

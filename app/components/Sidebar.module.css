@@ -64,14 +64,18 @@
   opacity: 0;
 }
 
-/* --- Facility Selector --- */
+/* --- Facility Selector (custom dropdown) --- */
 .facilitySelector {
   padding: 12px 12px 4px;
   flex-shrink: 0;
+  position: relative;
 }
 
-.facilitySelect {
+.facilityBtn {
   width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px 10px;
   font-family: var(--font-body);
   font-size: 13px;
@@ -82,27 +86,146 @@
   cursor: pointer;
   outline: none;
   transition: border-color var(--transition-fast), background-color var(--transition-fast);
-  appearance: auto;
+  text-align: left;
+  overflow: hidden;
 }
 
-.facilitySelect:focus {
+.facilityBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.facilityBtn:focus-visible {
   border-color: var(--color-accent);
   background-color: rgba(255, 255, 255, 0.08);
 }
 
-.facilitySelect option {
-  background-color: var(--color-sidebar-bg);
-  color: var(--color-sidebar-text);
+.facilityIcon {
+  min-width: 16px;
+  flex-shrink: 0;
+  color: var(--color-accent);
 }
 
+.facilityLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity var(--transition-fast), width var(--transition-fast);
+}
+
+.facilityChevron {
+  min-width: 14px;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* Dropdown panel — expanded state (below the button) */
+.facilityDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 12px;
+  right: 12px;
+  background-color: var(--color-sidebar-bg);
+  border: 1px solid var(--color-sidebar-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.3));
+  z-index: 300;
+  padding: 4px;
+  animation: dropdownFadeIn 0.15s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.facilityDropdownHeader {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-sidebar-section);
+  padding: 6px 8px 4px;
+}
+
+.facilityOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-sidebar-text);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.facilityOption:hover {
+  background-color: var(--color-sidebar-hover);
+  color: var(--color-sidebar-text-active);
+}
+
+.facilityOptionActive {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.facilityOptionLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.facilityCheck {
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+
+/* --- Collapsed state for facility selector --- */
 .collapsed .facilitySelector {
   padding: 12px 8px 4px;
 }
 
-.collapsed .facilitySelect {
-  font-size: 0;
-  padding: 8px 6px;
-  text-align: center;
+.collapsed .facilityBtn {
+  justify-content: center;
+  padding: 8px;
+}
+
+.collapsed .facilityLabel {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.collapsed .facilityChevron {
+  display: none;
+}
+
+/* When collapsed, dropdown appears to the right like a tooltip */
+.collapsed .facilityDropdown {
+  left: calc(100% + 8px);
+  top: 0;
+  right: auto;
+  min-width: 220px;
 }
 
 /* --- Navigation --- */
@@ -235,16 +358,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
-  border-top: 1px solid var(--color-sidebar-border);
+  width: 32px;
+  height: 32px;
+  margin: 8px auto 12px;
+  padding: 0;
+  border: 1px solid var(--color-sidebar-border);
+  border-radius: var(--radius-md);
+  background: transparent;
   color: var(--color-sidebar-text);
+  cursor: pointer;
   flex-shrink: 0;
-  transition: color var(--transition-fast), background-color var(--transition-fast);
+  transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .toggleBtn:hover {
   color: var(--color-sidebar-text-active);
   background-color: var(--color-sidebar-hover);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* --- Mobile Overlay --- */
@@ -275,10 +405,25 @@
     height: auto;
   }
 
-  .collapsed .facilitySelect {
-    font-size: 13px;
+  .collapsed .facilityLabel {
+    opacity: 1;
+    width: auto;
+  }
+
+  .collapsed .facilityChevron {
+    display: block;
+  }
+
+  .collapsed .facilityBtn {
+    justify-content: flex-start;
     padding: 8px 10px;
-    text-align: left;
+  }
+
+  .collapsed .facilityDropdown {
+    left: 12px;
+    right: 12px;
+    top: calc(100% + 4px);
+    min-width: auto;
   }
 
   .collapsed .navItem {

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -16,6 +17,9 @@ import {
   UserCog,
   ChevronsLeft,
   ChevronsRight,
+  MapPin,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -54,14 +58,40 @@ const NAV_SECTIONS = [
 ];
 
 const FACILITIES = [
-  { id: 'kck', label: 'Kansas City, KS (KCK)' },
-  { id: 'liberal', label: 'Liberal, KS' },
-  { id: 'dodge', label: 'Dodge City, KS' },
-  { id: 'tama', label: 'Tama, IA' },
+  { id: 'kck', label: 'Kansas City, KS (KCK)', short: 'KCK' },
+  { id: 'liberal', label: 'Liberal, KS', short: 'LBL' },
+  { id: 'dodge', label: 'Dodge City, KS', short: 'DDG' },
+  { id: 'tama', label: 'Tama, IA', short: 'TMA' },
 ];
 
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const pathname = usePathname();
+  const [selectedFacility, setSelectedFacility] = useState('kck');
+  const [facilityOpen, setFacilityOpen] = useState(false);
+  const facilityRef = useRef(null);
+
+  const currentFacility = FACILITIES.find((f) => f.id === selectedFacility);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (facilityRef.current && !facilityRef.current.contains(e.target)) {
+        setFacilityOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Close dropdown when sidebar collapse state changes
+  useEffect(() => {
+    setFacilityOpen(false);
+  }, [collapsed]);
+
+  const handleFacilitySelect = useCallback((id) => {
+    setSelectedFacility(id);
+    setFacilityOpen(false);
+  }, []);
 
   const sidebarClass = [
     styles.sidebar,
@@ -86,19 +116,39 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
           <span className={styles.brandName}>National Beef AI</span>
         </div>
 
-        {/* Facility Selector */}
-        <div className={styles.facilitySelector}>
-          <select
-            className={styles.facilitySelect}
-            defaultValue="kck"
+        {/* Facility Selector — custom dropdown */}
+        <div className={styles.facilitySelector} ref={facilityRef}>
+          <button
+            className={styles.facilityBtn}
+            onClick={() => setFacilityOpen((prev) => !prev)}
             aria-label="Select facility"
+            aria-expanded={facilityOpen}
+            type="button"
           >
-            {FACILITIES.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.label}
-              </option>
-            ))}
-          </select>
+            <MapPin size={16} className={styles.facilityIcon} />
+            <span className={styles.facilityLabel}>{currentFacility?.label}</span>
+            <ChevronDown
+              size={14}
+              className={`${styles.facilityChevron} ${facilityOpen ? styles.chevronOpen : ''}`}
+            />
+          </button>
+
+          {facilityOpen && (
+            <div className={styles.facilityDropdown}>
+              <div className={styles.facilityDropdownHeader}>Select Facility</div>
+              {FACILITIES.map((f) => (
+                <button
+                  key={f.id}
+                  className={`${styles.facilityOption} ${f.id === selectedFacility ? styles.facilityOptionActive : ''}`}
+                  onClick={() => handleFacilitySelect(f.id)}
+                  type="button"
+                >
+                  <span className={styles.facilityOptionLabel}>{f.label}</span>
+                  {f.id === selectedFacility && <Check size={14} className={styles.facilityCheck} />}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
