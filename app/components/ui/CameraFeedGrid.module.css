@@ -91,13 +91,14 @@
   position: relative;
   border-radius: var(--radius-lg);
   overflow: hidden;
+  max-height: 340px;
 }
 
 /* ── Grid Layouts ────────────────────────────── */
 .grid1x1 {
   display: grid;
   grid-template-columns: 1fr;
-  aspect-ratio: 16 / 9;
+  height: 100%;
 }
 
 .grid2x2 {
@@ -105,7 +106,7 @@
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
   gap: 2px;
-  aspect-ratio: 16 / 9;
+  height: 100%;
 }
 
 /* ── Camera Tile ─────────────────────────────── */

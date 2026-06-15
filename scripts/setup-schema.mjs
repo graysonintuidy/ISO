@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Uses the same API key pattern found in prior scripts
-const API_KEY = 'vntg_7aEF3glus_kuqwsdEY9ir910UhmNFbpUqaABhN7m4hA';
+const API_KEY = 'vntg_I8B07QTVVff24CXHEvE_UGg1GBIkkbWFxu-nojD3JuU';
 const MCP_URL = 'https://mcp.intuidy.com/mcp';
 let sessionId = null;
 
@@ -105,28 +105,21 @@ async function findDatabase() {
   const dbs = await callTool('list_managed_databases', {});
   console.log('Databases found:', JSON.stringify(dbs, null, 2));
   
-  // Find the target database
-  const TARGET = 'vantage_112482_Nation_Beef_Video_Monitoring_m9b04tw2';
   let targetId = null;
   
+  function checkDb(db) {
+    const dbName = db.name || db.database_name || db.databaseName || db.db_name || '';
+    console.log(`  DB: id=${db.id || db.databaseId}, name=${dbName}`);
+    if (dbName.includes('Nation') && dbName.includes('Beef')) {
+      targetId = db.id || db.databaseId;
+      console.log(`  ✅ Found target database! ID: ${targetId}`);
+    }
+  }
+  
   if (Array.isArray(dbs)) {
-    for (const db of dbs) {
-      console.log(`  DB: id=${db.id || db.databaseId}, name=${db.name || db.database_name || db.databaseName || JSON.stringify(db)}`);
-      const dbName = db.name || db.database_name || db.databaseName || '';
-      if (dbName === TARGET || dbName.includes('Nation_Beef') || dbName.includes('national_beef') || dbName.includes('112482')) {
-        targetId = db.id || db.databaseId;
-        console.log(`  ✅ Found target database! ID: ${targetId}`);
-      }
-    }
+    for (const db of dbs) checkDb(db);
   } else if (typeof dbs === 'object' && dbs.databases) {
-    for (const db of dbs.databases) {
-      console.log(`  DB: id=${db.id || db.databaseId}, name=${db.name || db.database_name || db.databaseName || JSON.stringify(db)}`);
-      const dbName = db.name || db.database_name || db.databaseName || '';
-      if (dbName === TARGET || dbName.includes('Nation_Beef') || dbName.includes('national_beef') || dbName.includes('112482')) {
-        targetId = db.id || db.databaseId;
-        console.log(`  ✅ Found target database! ID: ${targetId}`);
-      }
-    }
+    for (const db of dbs.databases) checkDb(db);
   }
   
   console.log('');
@@ -404,7 +397,7 @@ async function executeSchema(dbId) {
   location_description VARCHAR(500),
   production_line_id INT,
   status ENUM('online', 'offline', 'maintenance', 'error') DEFAULT 'online',
-  last_value JSON,
+  \`last_value\` JSON,
   last_heartbeat TIMESTAMP NULL,
   alert_threshold JSON,
   config JSON,

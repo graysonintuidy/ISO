@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
   ShieldAlert,
   ShieldCheck,
@@ -10,15 +11,10 @@ import {
   Clock,
   User,
   Timer,
-  Filter,
-  ChevronDown,
-  Eye,
-  X,
   MapPin,
   Activity,
-  ChevronUp,
 } from 'lucide-react';
-import { SAFETY_ZONES, VIOLATION_LOG } from '@/lib/demoSafetyZones';
+
 import styles from './page.module.css';
 
 /* ---------- Helpers ---------- */
@@ -77,45 +73,109 @@ function StatusTag({ status }) {
    SafetyZonesPage
    ============================================================ */
 export default function SafetyZonesPage() {
-  const [selectedZoneId, setSelectedZoneId] = useState(null);
+  const router = useRouter();
   const [logFilter, setLogFilter] = useState('all');
+  const [zones, setZones] = useState([]);
+  const [violations, setViolations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [zonesRes, incidentsRes] = await Promise.all([
+        fetch('/api/zones?facilityId=1'),
+        fetch('/api/incidents?facilityId=1&limit=50'),
+      ]);
+      if (zonesRes.ok) {
+        const zData = await zonesRes.json();
+        const mappedZones = (zData.data || []).map(z => {
+          const meta = typeof z.metadata === 'string' ? JSON.parse(z.metadata) : (z.metadata || {});
+          return {
+            id: z.id,
+            name: z.name,
+            type: z.zone_type === 'restricted' ? 'restricted' : z.zone_type === 'hazardous' ? 'caution' : z.zone_type === 'authorized' ? 'emergency' : 'general',
+            camera: meta.camera || 'Unknown',
+            image: meta.image || '/camera-feeds/cam-01.png',
+            location: meta.location || z.name,
+            status: meta.status || 'clear',
+            severity: meta.severity || 'low',
+            zoneColor: z.color || '#FF0000',
+            description: meta.description || '',
+            breachCount: meta.breachCount || 0,
+            todayBreaches: meta.todayBreaches || 0,
+            lastBreach: meta.lastBreach || null,
+          };
+        });
+        setZones(mappedZones);
+      }
+      if (incidentsRes.ok) {
+        const iData = await incidentsRes.json();
+        const mappedViolations = (iData.data || []).map(inc => {
+          const meta = typeof inc.metadata === 'string' ? JSON.parse(inc.metadata) : (inc.metadata || {});
+          return {
+            id: inc.id,
+            zoneId: inc.zone_id,
+            zoneName: meta.zoneName || 'Unknown Zone',
+            camera: meta.camera || 'Unknown',
+            timestamp: inc.created_at,
+            severity: inc.severity,
+            type: inc.incident_type === 'unauthorized_access' ? 'unauthorized_entry'
+              : inc.incident_type === 'zone_breach' ? 'boundary_breach'
+              : inc.incident_type,
+            description: inc.description || inc.title,
+            person: meta.person || 'Unknown',
+            duration: meta.duration || 'N/A',
+            status: inc.status === 'open' ? 'unresolved' : inc.status === 'investigating' ? 'acknowledged' : 'resolved',
+            image: meta.image || '/camera-feeds/cam-01.png',
+          };
+        });
+        setViolations(mappedViolations);
+      }
+    } catch (error) {
+      console.error('Failed to fetch safety zone data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   /* ---------- Computed stats ---------- */
   const stats = useMemo(() => {
-    const totalZones = SAFETY_ZONES.length;
-    const activeBreaches = SAFETY_ZONES.filter((z) => z.status === 'breach').length;
-    const todayViolations = SAFETY_ZONES.reduce((sum, z) => sum + z.todayBreaches, 0);
-    const clearZones = SAFETY_ZONES.filter((z) => z.status === 'clear').length;
+    const totalZones = zones.length;
+    const activeBreaches = zones.filter((z) => z.status === 'breach').length;
+    const todayViolations = zones.reduce((sum, z) => sum + z.todayBreaches, 0);
+    const clearZones = zones.filter((z) => z.status === 'clear').length;
     const complianceScore = totalZones > 0 ? Math.round((clearZones / totalZones) * 100) : 0;
     return { totalZones, activeBreaches, todayViolations, complianceScore };
-  }, []);
-
-  /* ---------- Selected zone ---------- */
-  const selectedZone = useMemo(() => {
-    if (!selectedZoneId) return null;
-    return SAFETY_ZONES.find((z) => z.id === selectedZoneId) || null;
-  }, [selectedZoneId]);
-
-  /* ---------- Violations for selected zone ---------- */
-  const zoneViolations = useMemo(() => {
-    if (!selectedZoneId) return [];
-    return VIOLATION_LOG
-      .filter((v) => v.zoneId === selectedZoneId)
-      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  }, [selectedZoneId]);
+  }, [zones]);
 
   /* ---------- Filtered log ---------- */
   const filteredLog = useMemo(() => {
-    let result = [...VIOLATION_LOG];
+    let result = [...violations];
     if (logFilter === 'critical') result = result.filter((v) => v.severity === 'critical');
     else if (logFilter === 'warning') result = result.filter((v) => v.severity === 'warning');
     result.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     return result;
-  }, [logFilter]);
+  }, [logFilter, violations]);
 
   const handleCardClick = useCallback((id) => {
-    setSelectedZoneId((prev) => (prev === id ? null : id));
-  }, []);
+    router.push(`/safety-zones/${id}`);
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.pageHeader}>
+          <div>
+            <h1 className={styles.pageTitle}>Safety Zones</h1>
+            <p className={styles.pageSubtitle}>Loading safety zone data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
@@ -171,10 +231,10 @@ export default function SafetyZonesPage() {
 
       {/* ======= Camera Grid ======= */}
       <div className={styles.cameraGrid}>
-        {SAFETY_ZONES.map((zone, i) => (
+        {zones.map((zone, i) => (
           <div
             key={zone.id}
-            className={`${styles.cameraCard} ${selectedZoneId === zone.id ? styles.cameraCardSelected : ''}`}
+            className={styles.cameraCard}
             style={{ animationDelay: `${i * 0.04}s` }}
             onClick={() => handleCardClick(zone.id)}
             role="button"
@@ -243,111 +303,6 @@ export default function SafetyZonesPage() {
         ))}
       </div>
 
-      {/* ======= Expanded Zone Detail ======= */}
-      {selectedZone && (
-        <div className={styles.expandedDetail}>
-          {/* Header */}
-          <div className={styles.detailHeader}>
-            <div className={styles.detailHeaderLeft}>
-              <div className={styles.detailZoneIcon}>
-                <ShieldAlert size={20} />
-              </div>
-              <div>
-                <div className={styles.detailName}>{selectedZone.name}</div>
-                <div className={styles.detailMeta}>
-                  <span style={{ textTransform: 'capitalize' }}>{selectedZone.type}</span>
-                  <span className={styles.detailMetaSep}>·</span>
-                  <span>{selectedZone.camera}</span>
-                  <span className={styles.detailMetaSep}>·</span>
-                  <span style={{ textTransform: 'capitalize', fontWeight: 600 }}>
-                    {selectedZone.status}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <button className={styles.collapseBtn} onClick={() => setSelectedZoneId(null)}>
-              <X size={13} />
-              Close
-            </button>
-          </div>
-
-          {/* Body — image + info */}
-          <div className={styles.detailBody}>
-            <div className={styles.detailImageCol}>
-              <Image
-                src={selectedZone.image}
-                alt={selectedZone.name}
-                width={720}
-                height={405}
-                className={styles.detailLargeImage}
-              />
-            </div>
-            <div className={styles.detailInfoCol}>
-              <div className={styles.detailSection}>
-                <div className={styles.detailSectionTitle}>Zone Information</div>
-                <div className={styles.detailInfoGrid}>
-                  <span className={styles.detailInfoLabel}>Zone:</span>
-                  <span className={styles.detailInfoValue}>{selectedZone.name}</span>
-                  <span className={styles.detailInfoLabel}>Type:</span>
-                  <span className={styles.detailInfoValue} style={{ textTransform: 'capitalize' }}>
-                    {selectedZone.type}
-                  </span>
-                  <span className={styles.detailInfoLabel}>Camera:</span>
-                  <span className={styles.detailInfoValue}>{selectedZone.camera}</span>
-                  <span className={styles.detailInfoLabel}>Location:</span>
-                  <span className={styles.detailInfoValue}>{selectedZone.location}</span>
-                  <span className={styles.detailInfoLabel}>Total Breaches:</span>
-                  <span className={styles.detailInfoValue}>{selectedZone.breachCount}</span>
-                  <span className={styles.detailInfoLabel}>Today:</span>
-                  <span className={styles.detailInfoValue}>{selectedZone.todayBreaches}</span>
-                </div>
-              </div>
-              <div className={styles.detailSection}>
-                <div className={styles.detailSectionTitle}>Description</div>
-                <div className={styles.detailDescription}>{selectedZone.description}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Violation history for this zone */}
-          <div className={styles.detailViolationsHeader}>
-            Violation History — {zoneViolations.length} event{zoneViolations.length !== 1 ? 's' : ''}
-          </div>
-          {zoneViolations.length > 0 ? (
-            <div className={styles.detailViolationsList}>
-              {zoneViolations.map((v) => (
-                <div
-                  key={v.id}
-                  className={`${styles.detailViolationRow} ${
-                    v.severity === 'critical'
-                      ? styles.detailViolationRowCritical
-                      : styles.detailViolationRowWarning
-                  }`}
-                >
-                  <span className={styles.violationTimestamp}>{formatTimestamp(v.timestamp)}</span>
-                  <SeverityBadge severity={v.severity} />
-                  <span className={styles.violationType}>{formatViolationType(v.type)}</span>
-                  <span className={styles.violationDesc}>{v.description}</span>
-                  <span className={styles.violationPerson}>
-                    <User size={10} />
-                    {v.person}
-                  </span>
-                  <span className={styles.violationDuration}>
-                    <Timer size={10} />
-                    {v.duration}
-                  </span>
-                  <StatusTag status={v.status} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className={styles.noViolations}>
-              <ShieldCheck size={16} />
-              No violations recorded for this zone.
-            </div>
-          )}
-        </div>
-      )}
 
       {/* ======= Full Violation Log Panel ======= */}
       <div className={styles.violationLogPanel}>

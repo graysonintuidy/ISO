@@ -287,11 +287,11 @@ const VideoPlayer = forwardRef(function VideoPlayer(
       )}
 
       {/* Recording Indicator */}
-      {(isRecording || status === 'online') && (
+      {isRecording && (
         <div className={styles.recordingIndicator}>
           <span className={styles.recordingDot} />
           <span className={styles.recordingLabel}>
-            {isRecording ? 'REC' : 'LIVE'}
+            REC
           </span>
         </div>
       )}

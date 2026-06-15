@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import {
   AlertTriangle, Clock, MapPin, User, Play, X, Camera,
   ChevronDown, ChevronUp, ShieldAlert, Timer, Eye,
 } from 'lucide-react';
-import { VIOLATION_LOG } from '@/lib/demoSafetyZones';
+
 import styles from './page.module.css';
 
 function formatTimestamp(ts) {
@@ -47,8 +47,46 @@ export default function IncidentsPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortField, setSortField] = useState('timestamp');
   const [sortDir, setSortDir] = useState('desc');
+  const [loading, setLoading] = useState(true);
+  const [incidents, setIncidents] = useState([]);
 
-  const incidents = VIOLATION_LOG;
+  const fetchIncidents = useCallback(async () => {
+    try {
+      const res = await fetch('/api/incidents?facilityId=1&limit=50');
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = (data.data || []).map(inc => {
+          const meta = typeof inc.metadata === 'string' ? JSON.parse(inc.metadata) : (inc.metadata || {});
+          return {
+            id: inc.id,
+            zoneId: inc.zone_id,
+            zoneName: meta.zoneName || 'Unknown Zone',
+            camera: meta.camera || 'Unknown',
+            timestamp: inc.created_at,
+            severity: inc.severity,
+            type: inc.incident_type === 'unauthorized_access' ? 'unauthorized_entry'
+              : inc.incident_type === 'safety_violation' ? 'boundary_breach'
+              : inc.incident_type === 'zone_breach' ? 'zone_breach'
+              : inc.incident_type,
+            description: inc.description || inc.title,
+            person: meta.person || 'Unknown',
+            duration: meta.duration || 'N/A',
+            status: inc.status === 'open' ? 'unresolved' : inc.status === 'investigating' ? 'acknowledged' : 'resolved',
+            image: meta.image || '/camera-feeds/cam-01.png',
+          };
+        });
+        setIncidents(mapped);
+      }
+    } catch (error) {
+      console.error('Failed to fetch incidents:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchIncidents();
+  }, [fetchIncidents]);
 
   const stats = useMemo(() => {
     const total = incidents.length;
@@ -83,6 +121,19 @@ export default function IncidentsPage() {
       setSortDir('desc');
     }
   };
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.pageHeader}>
+          <div>
+            <h1 className={styles.pageTitle}>Incidents</h1>
+            <p className={styles.pageSubtitle}>Loading incident data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>

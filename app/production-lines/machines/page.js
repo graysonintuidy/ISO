@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   Cpu,
   Activity,
@@ -20,7 +20,7 @@ import {
   Power,
   Filter,
 } from 'lucide-react';
-import DEMO_MACHINES from '@/lib/demoMachineData';
+
 import MachineCard from '@/app/components/ui/MachineCard';
 import styles from './page.module.css';
 
@@ -97,11 +97,49 @@ function formatDate(d) {
 }
 
 export default function MachinesPage() {
-  const [machines, setMachines] = useState(DEMO_MACHINES);
+  const [machines, setMachines] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortBy, setSortBy] = useState('status');
   const [expandedId, setExpandedId] = useState(null);
+
+  const fetchMachines = useCallback(async () => {
+    try {
+      const res = await fetch('/api/devices?facilityId=1');
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = (data.data || []).map(device => {
+          const config = typeof device.config === 'string' ? JSON.parse(device.config) : (device.config || {});
+          return {
+            id: device.id,
+            name: device.device_name,
+            type: config.machineType || device.device_type || 'Unknown',
+            line: config.line || 'Line 1',
+            lineNumber: config.lineNumber || 1,
+            status: config.originalStatus || (device.status === 'online' ? 'running' : device.status === 'error' ? 'fault' : device.status === 'offline' ? 'idle' : device.status),
+            outputRate: config.outputRate || 0,
+            targetOutput: config.targetOutput || 0,
+            unit: config.unit || 'units/hr',
+            uptime: config.uptime || 0,
+            lastMaintenance: config.lastMaintenance || null,
+            nextMaintenance: config.nextMaintenance || null,
+            sensors: config.sensors || {},
+            alerts: config.alerts || [],
+          };
+        });
+        setMachines(mapped);
+      }
+    } catch (error) {
+      console.error('Failed to fetch machines:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchMachines();
+  }, [fetchMachines]);
 
   /* ---------- Counts ---------- */
   const counts = useMemo(() => {
@@ -218,6 +256,19 @@ export default function MachinesPage() {
       maintenance: styles.expandedDetailMaintenance,
     };
     return map[status] || '';
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.pageHeader}>
+          <div>
+            <h1 className={styles.pageTitle}>Machine Overview</h1>
+            <p className={styles.pageSubtitle}>Loading machine data...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

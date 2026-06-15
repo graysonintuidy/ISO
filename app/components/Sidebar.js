@@ -22,6 +22,7 @@ import {
   Check,
   ScanEye,
   Cpu,
+  Bot,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -45,6 +46,7 @@ const NAV_SECTIONS = [
     label: 'OPERATIONS',
     items: [
       { href: '/incidents', label: 'Incidents', icon: AlertTriangle },
+      { href: '/ai-assistant', label: 'AI Assistant', icon: Bot },
     ],
   },
   {

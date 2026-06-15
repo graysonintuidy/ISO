@@ -52,13 +52,6 @@ export default function CameraPlaceholder({
           backgroundPosition: 'center',
         } : undefined}
       >
-        {/* Recording / Live indicator */}
-        {status === 'online' && (
-          <div className={styles.liveIndicator}>
-            <span className={styles.liveDot} />
-            <span className={styles.liveLabel}>LIVE</span>
-          </div>
-        )}
 
         <span className={`${styles.statusLabel} ${statusLabel.className}`}>
           {statusLabel.text}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   ScanEye,
   Camera,
@@ -17,7 +17,7 @@ import {
   WifiOff,
   Activity,
 } from 'lucide-react';
-import DEMO_PRODUCTION_CAMERAS from '@/lib/demoProductionCameras';
+
 import styles from './page.module.css';
 
 /* ---------- Constants ---------- */
@@ -99,11 +99,70 @@ function ConfidenceGauge({ value, aiStatus }) {
    MAIN PAGE COMPONENT
    ============================================================ */
 export default function ProductionLineCamerasPage() {
-  const [cameras, setCameras] = useState(DEMO_PRODUCTION_CAMERAS);
+  const [cameras, setCameras] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [gridLayout, setGridLayout] = useState('3x3');
   const [activeFilter, setActiveFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCameraId, setSelectedCameraId] = useState(null);
+
+  const fetchCameras = useCallback(async () => {
+    try {
+      const [camerasRes, eventsRes] = await Promise.all([
+        fetch('/api/cameras?facilityId=1'),
+        fetch('/api/ai-events?facilityId=1&limit=100'),
+      ]);
+      if (camerasRes.ok) {
+        const cData = await camerasRes.json();
+        const eData = eventsRes.ok ? await eventsRes.json() : { data: [] };
+        const eventsByCamera = {};
+        (eData.data || []).forEach(evt => {
+          if (!eventsByCamera[evt.camera_id]) eventsByCamera[evt.camera_id] = [];
+          eventsByCamera[evt.camera_id].push({
+            id: `evt-${evt.id}`,
+            timestamp: evt.created_at,
+            type: evt.event_type,
+            severity: evt.severity || 'info',
+            object: evt.object || evt.event_type,
+            confidence: Math.round((evt.confidence || 0) * 100),
+            action: evt.action || 'Flagged for review',
+            resolved: evt.reviewed || false,
+          });
+        });
+
+        const lineCameras = (cData.data || [])
+          .filter(cam => cam.camera_type === 'line' && cam.ai_enabled)
+          .map(cam => {
+            const config = typeof cam.config === 'string' ? JSON.parse(cam.config) : (cam.config || {});
+            const camEvents = eventsByCamera[cam.id] || [];
+            return {
+              id: cam.id,
+              name: cam.name,
+              line: config.line || 'Line 1',
+              lineNumber: config.lineNumber || 1,
+              location: cam.location_description || config.line || '',
+              cameraType: config.cameraType || 'AI Vision \u2014 Top-Down',
+              status: cam.status,
+              aiStatus: config.aiStatus || 'clear',
+              aiConfidence: config.aiConfidence || 98,
+              detections: config.detections || camEvents.filter(e => !e.resolved).length,
+              image: config.image || null,
+              lastDetection: camEvents[0]?.timestamp || null,
+              events: camEvents,
+            };
+          });
+        setCameras(lineCameras);
+      }
+    } catch (error) {
+      console.error('Failed to fetch line cameras:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCameras();
+  }, [fetchCameras]);
 
   /* ---------- Computed values ---------- */
   const statusCounts = useMemo(() => {
@@ -224,6 +283,19 @@ export default function ProductionLineCamerasPage() {
       default:
         return null;
     }
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.pageHeader}>
+          <div>
+            <h1 className={styles.pageTitle}>Line Cameras</h1>
+            <p className={styles.pageSubtitle}>Loading camera data...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -393,12 +465,7 @@ export default function ProductionLineCamerasPage() {
                 <span className={styles.cameraName}>{selectedCamera.name}</span>
                 <span className={styles.cameraLine}>{selectedCamera.location}</span>
               </div>
-              {selectedCamera.status === 'online' && (
-                <div className={styles.liveIndicator}>
-                  <span className={styles.liveDot} />
-                  <span className={styles.liveText}>LIVE</span>
-                </div>
-              )}
+
               {renderAiBadge(selectedCamera)}
             </div>
 
@@ -525,13 +592,8 @@ export default function ProductionLineCamerasPage() {
                   <span className={styles.cameraLine}>{cam.line} — {cam.location}</span>
                 </div>
 
-                {/* LIVE / Offline indicator */}
-                {cam.status === 'online' ? (
-                  <div className={styles.liveIndicator}>
-                    <span className={styles.liveDot} />
-                    <span className={styles.liveText}>LIVE</span>
-                  </div>
-                ) : (
+                {/* Offline indicator */}
+                {cam.status !== 'online' && (
                   <div className={styles.offlineIndicator}>
                     <WifiOff size={10} />
                     Offline

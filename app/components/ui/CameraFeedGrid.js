@@ -42,11 +42,6 @@ function CameraTile({ cam, compact = false }) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={cam.image} alt={`${cam.name} — ${cam.location}`} className={styles.tileImage} />
 
-      {/* Live badge */}
-      <div className={styles.liveIndicator}>
-        <span className={styles.liveDot} />
-        <span className={styles.liveLabel}>LIVE</span>
-      </div>
 
       {/* Expand link */}
       <Link

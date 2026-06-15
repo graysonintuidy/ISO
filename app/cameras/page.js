@@ -15,7 +15,7 @@ import {
 import CameraPlaceholder from '@/app/components/ui/CameraPlaceholder';
 import DataTable from '@/app/components/ui/DataTable';
 import StatusBadge from '@/app/components/ui/StatusBadge';
-import DEMO_CAMERA_FEEDS from '@/lib/demoCameraFeeds';
+
 import styles from './page.module.css';
 
 const CATEGORIES = ['All', 'Floor', 'Line', 'Entrance', 'Hazard Zone'];
@@ -49,18 +49,21 @@ export default function CamerasPage() {
 
   const fetchCameras = useCallback(async () => {
     try {
-      const res = await fetch('/api/dashboard?facilityId=1');
+      const res = await fetch('/api/cameras?facilityId=1');
       if (res.ok) {
         const data = await res.json();
-        const realCameras = data.cameras || [];
-        // Fall back to demo feeds when no real cameras are configured
-        setCameras(realCameras.length > 0 ? realCameras : DEMO_CAMERA_FEEDS);
-      } else {
-        setCameras(DEMO_CAMERA_FEEDS);
+        const cameraList = (data.data || []).map(cam => {
+          const config = typeof cam.config === 'string' ? JSON.parse(cam.config) : (cam.config || {});
+          return {
+            ...cam,
+            image: config.image || null,
+            zone: config.zone || cam.camera_type || 'Floor',
+          };
+        });
+        setCameras(cameraList);
       }
     } catch (error) {
       console.error('Failed to fetch cameras:', error);
-      setCameras(DEMO_CAMERA_FEEDS);
     } finally {
       setLoading(false);
     }

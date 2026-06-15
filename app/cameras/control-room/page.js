@@ -12,7 +12,7 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import VideoPlayer from '@/app/components/ui/VideoPlayer';
-import DEMO_CAMERA_FEEDS from '@/lib/demoCameraFeeds';
+
 import styles from './page.module.css';
 
 /** Grid layout presets */
@@ -46,17 +46,21 @@ export default function ControlRoomPage() {
   /* ---- Data Fetching ---- */
   const fetchCameras = useCallback(async () => {
     try {
-      const res = await fetch('/api/dashboard?facilityId=1');
+      const res = await fetch('/api/cameras?facilityId=1');
       if (res.ok) {
         const data = await res.json();
-        const realCameras = data.cameras || [];
-        setCameras(realCameras.length > 0 ? realCameras : DEMO_CAMERA_FEEDS);
-      } else {
-        setCameras(DEMO_CAMERA_FEEDS);
+        const cameraList = (data.data || []).map(cam => {
+          const config = typeof cam.config === 'string' ? JSON.parse(cam.config) : (cam.config || {});
+          return {
+            ...cam,
+            image: config.image || null,
+            zone: config.zone || cam.camera_type || 'Floor',
+          };
+        });
+        setCameras(cameraList);
       }
     } catch (error) {
       console.error('Failed to fetch cameras:', error);
-      setCameras(DEMO_CAMERA_FEEDS);
     } finally {
       setLoading(false);
     }

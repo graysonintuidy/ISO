@@ -14,130 +14,12 @@ import CameraFeedGrid from '@/app/components/ui/CameraFeedGrid';
 import ProductionLineCard from '@/app/components/ui/ProductionLineCard';
 import AlertFeed from '@/app/components/ui/AlertFeed';
 import DataTable from '@/app/components/ui/DataTable';
-import { VIOLATION_LOG } from '@/lib/demoSafetyZones';
+
 import styles from './page.module.css';
 
 const REFRESH_INTERVAL = 30000; // 30 seconds
 
-/* ============================================================
-   MOCK DASHBOARD DATA
-   ============================================================ */
-const MOCK_STATS = {
-  cameras: { online: 14, total: 16 },
-  alerts: { active: 5, critical: 2 },
-  employees: { onShift: 47, total: 62 },
-  productionLines: { running: 3, total: 4 },
-  devices: { online: 28, total: 32 },
-  safetyScore: 82,
-};
 
-const MOCK_ALERTS = [
-  {
-    id: 'a1',
-    title: 'Zone Breach — Grinder Area',
-    message: 'Unauthorized worker entered restricted grinder zone without lockout clearance.',
-    severity: 'critical',
-    source: 'SZ-CAM-01',
-    timestamp: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-  },
-  {
-    id: 'a2',
-    title: 'High Voltage Panel Access',
-    message: 'Maintenance worker accessed electrical panel without clearance.',
-    severity: 'critical',
-    source: 'SZ-CAM-04',
-    timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-  },
-  {
-    id: 'a3',
-    title: 'Conveyor Belt Boundary Breach',
-    message: 'Personnel crossed conveyor safety boundary during operation.',
-    severity: 'warning',
-    source: 'SZ-CAM-02',
-    timestamp: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
-  },
-  {
-    id: 'a4',
-    title: 'Grinder A-2 Temperature High',
-    message: 'Temperature sensor reading 58°F — exceeds threshold of 55°F.',
-    severity: 'warning',
-    source: 'IoT Sensor — Grinder A-2',
-    timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-  },
-  {
-    id: 'a5',
-    title: 'Forklift Zone — Pedestrian Detected',
-    message: 'Pedestrian entered active forklift operating zone in Aisle 4.',
-    severity: 'warning',
-    source: 'SZ-CAM-03',
-    timestamp: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-  },
-  {
-    id: 'a6',
-    title: 'Camera CAM-07 Offline',
-    message: 'Camera feed lost — last heartbeat 4 minutes ago.',
-    severity: 'info',
-    source: 'System',
-    timestamp: new Date(Date.now() - 1000 * 60 * 240).toISOString(),
-  },
-  {
-    id: 'a7',
-    title: 'Shift Change Complete',
-    message: 'Day shift handoff to evening shift completed. 47 employees checked in.',
-    severity: 'info',
-    source: 'System',
-    timestamp: new Date(Date.now() - 1000 * 60 * 300).toISOString(),
-  },
-];
-
-const MOCK_PRODUCTION_LINES = [
-  {
-    id: 'pl-1',
-    name: 'Ground Beef — Line 1',
-    line_number: 1,
-    status: 'running',
-    current_speed: 1180,
-    target_throughput: 1250,
-    last_event: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-  },
-  {
-    id: 'pl-2',
-    name: 'Patties — Line 2',
-    line_number: 2,
-    status: 'running',
-    current_speed: 890,
-    target_throughput: 1000,
-    last_event: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-  },
-  {
-    id: 'pl-3',
-    name: 'Trim Processing — Line 3',
-    line_number: 3,
-    status: 'running',
-    current_speed: 460,
-    target_throughput: 500,
-    last_event: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-  },
-  {
-    id: 'pl-4',
-    name: 'Packaging — Line 4',
-    line_number: 4,
-    status: 'maintenance',
-    current_speed: 0,
-    target_throughput: 800,
-    last_event: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-  },
-];
-
-const MOCK_INCIDENTS = VIOLATION_LOG.slice(0, 6).map((v) => ({
-  id: v.id,
-  severity: v.severity === 'critical' ? 'critical' : 'high',
-  title: v.description,
-  incident_type: v.type.replace(/_/g, ' '),
-  status: v.status === 'unresolved' ? 'open' : v.status === 'acknowledged' ? 'investigating' : 'resolved',
-  location: v.zoneName,
-  created_at: v.timestamp,
-}));
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState(null);
@@ -163,12 +45,14 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, [fetchDashboardData]);
 
-  // Use API data only if it contains real values, otherwise fall back to mock data
-  const apiHasData = dashboardData?.stats?.cameras?.total > 0;
-  const stats = apiHasData ? dashboardData.stats : MOCK_STATS;
-  const alerts = dashboardData?.alerts?.length ? dashboardData.alerts : MOCK_ALERTS;
-  const incidents = dashboardData?.incidents?.length ? dashboardData.incidents : MOCK_INCIDENTS;
-  const productionLines = dashboardData?.productionLines?.length ? dashboardData.productionLines : MOCK_PRODUCTION_LINES;
+  const stats = dashboardData?.stats || { cameras: { online: 0, total: 0 }, alerts: { active: 0, critical: 0 }, employees: { onShift: 0, total: 0 }, productionLines: { running: 0, total: 0 }, devices: { online: 0, total: 0 }, safetyScore: 100 };
+  const alerts = dashboardData?.alerts || [];
+  const incidents = (dashboardData?.incidents || []).map(inc => ({
+    ...inc,
+    incident_type: (inc.incident_type || '').replace(/_/g, ' '),
+    title: inc.title || inc.description,
+  }));
+  const productionLines = dashboardData?.productionLines || [];
   const cameras = dashboardData?.cameras || [];
 
   // Incident table columns
@@ -270,7 +154,7 @@ export default function DashboardPage() {
         <div className={`card ${styles.compactCard}`}>
           <div className="card-header">
             <span className="card-title">Camera Feeds</span>
-            <span className={styles.countBadge}>16 cameras</span>
+            <span className={styles.countBadge}>{cameras.length} cameras</span>
           </div>
           <CameraFeedGrid cameras={cameras} />
         </div>

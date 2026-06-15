@@ -1,89 +1,89 @@
 import { NextResponse } from 'next/server';
-import DEMO_CAMERA_FEEDS from '@/lib/demoCameraFeeds';
+import { dbRawQuery } from '@/lib/database';
 
 /**
  * GET /api/cameras/[id]
- * Returns a single camera's details including mock events.
+ * Returns a single camera's details + recent AI events from the database.
  */
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
 
-    // Check if this is a demo camera
-    const demoCamera = DEMO_CAMERA_FEEDS.find((c) => c.id === id);
+    // Query camera from DB
+    const cameraResult = await dbRawQuery(
+      `SELECT * FROM cameras WHERE id = ${Number(id) || 0} LIMIT 1`
+    );
 
-    const camera = demoCamera
-      ? {
-          ...demoCamera,
-          resolution: '1920×1080',
-          fps: 30,
-          codec: 'H.264',
-          stream_url: null,
-          uptime: demoCamera.status === 'online' ? '14d 6h 32m' : null,
-          last_seen: demoCamera.status === 'online' ? new Date().toISOString() : null,
-          facility_id: 1,
-          created_at: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-        }
-      : {
-          id,
-          name: `Camera ${id}`,
-          location_description: 'Main Floor — Line 1',
-          camera_type: 'fixed',
-          zone: 'Floor',
-          status: 'pending_setup',
-          resolution: '1920×1080',
-          fps: 30,
-          codec: 'H.264',
-          stream_url: null,
-          image: null,
-          uptime: null,
-          last_seen: null,
-          facility_id: 1,
-          created_at: new Date().toISOString(),
-        };
+    let camera;
+    if (cameraResult.data.length > 0) {
+      const row = cameraResult.data[0];
+      // Parse JSON config/metadata columns
+      const config = typeof row.config === 'string' ? JSON.parse(row.config) : (row.config || {});
+      const metadata = typeof row.metadata === 'string' ? JSON.parse(row.metadata) : (row.metadata || {});
 
-    // Simulated recent events for this camera
-    const mockEvents = [
-      {
-        id: 'evt-1',
-        type: 'motion_detected',
-        description: 'Motion detected in camera field of view',
-        severity: 'low',
-        timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-      },
-      {
-        id: 'evt-2',
-        type: 'zone_entry',
-        description: 'Person entered monitored safety zone',
-        severity: 'medium',
-        timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-      },
-      {
-        id: 'evt-3',
-        type: 'ppe_violation',
-        description: 'PPE violation detected — missing hard hat',
-        severity: 'high',
-        timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-      },
-      {
-        id: 'evt-4',
-        type: 'forklift_proximity',
-        description: 'Forklift detected near pedestrian walkway',
-        severity: 'critical',
-        timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
-      },
-      {
-        id: 'evt-5',
-        type: 'line_stoppage',
-        description: 'Production line stopped — camera monitoring active',
-        severity: 'medium',
-        timestamp: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-      },
-    ];
+      camera = {
+        ...row,
+        config,
+        metadata,
+        image: config.image || null,
+        zone: config.zone || row.camera_type || 'Floor',
+        resolution: config.resolution || '1920×1080',
+        fps: config.fps || 30,
+        codec: config.codec || 'H.264',
+        uptime: row.status === 'online' ? (config.uptime || '14d 6h 32m') : null,
+        last_seen: row.status === 'online' ? (row.last_heartbeat || new Date().toISOString()) : null,
+        // AI-related fields for line cameras
+        aiStatus: config.aiStatus || null,
+        aiConfidence: config.aiConfidence || null,
+        detections: config.detections || 0,
+        cameraType: config.cameraType || row.camera_type,
+        line: config.line || null,
+        lineNumber: config.lineNumber || null,
+      };
+    } else {
+      camera = {
+        id,
+        name: `Camera ${id}`,
+        location_description: 'Unknown Location',
+        camera_type: 'floor',
+        zone: 'Floor',
+        status: 'pending_setup',
+        resolution: '1920×1080',
+        fps: 30,
+        codec: 'H.264',
+        stream_url: null,
+        image: null,
+        uptime: null,
+        last_seen: null,
+        facility_id: 1,
+        created_at: new Date().toISOString(),
+      };
+    }
+
+    // Query recent AI events for this camera
+    const eventsResult = await dbRawQuery(
+      `SELECT * FROM ai_events WHERE camera_id = ${Number(id) || 0} ORDER BY created_at DESC LIMIT 10`
+    );
+
+    const events = eventsResult.data.map((evt) => {
+      const meta = typeof evt.metadata === 'string' ? JSON.parse(evt.metadata) : (evt.metadata || {});
+      return {
+        id: `evt-${evt.id}`,
+        type: evt.event_type,
+        description: meta.description || `${evt.event_type} detected`,
+        severity: evt.confidence >= 0.9 ? 'critical' : evt.confidence >= 0.8 ? 'high' : 'medium',
+        timestamp: evt.created_at,
+        confidence: Math.round((evt.confidence || 0) * 100),
+        object: meta.object || evt.event_type,
+        action: meta.action || 'Flagged for review',
+        resolved: evt.reviewed || false,
+        false_positive: evt.false_positive || false,
+      };
+    });
 
     return NextResponse.json({
       camera,
-      events: mockEvents,
+      events,
     });
   } catch (error) {
     console.error('[API] Camera detail error:', error);
@@ -93,4 +93,3 @@ export async function GET(request, { params }) {
     );
   }
 }
-

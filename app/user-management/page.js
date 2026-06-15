@@ -19,10 +19,10 @@ export default function UserManagementPage() {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch('/api/dashboard?facilityId=1');
+      const res = await fetch('/api/users?facilityId=1');
       if (res.ok) {
         const data = await res.json();
-        setUsers(data.users || []);
+        setUsers(data.data || []);
       }
     } catch (error) {
       console.error('Failed to fetch users:', error);
