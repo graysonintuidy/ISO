@@ -1,0 +1,653 @@
+/* ============================================================
+   Roles & Permissions — page.module.css
+   ============================================================ */
+
+/* Page Layout */
+.page {
+  padding: var(--space-6);
+  max-width: 1600px;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
+.pageTitle {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  font-family: var(--font-heading);
+}
+
+.pageSubtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16) var(--space-6);
+  gap: var(--space-4);
+  color: var(--color-text-tertiary);
+}
+
+.loadingContainer p {
+  font-size: var(--text-sm);
+}
+
+/* ============================================================
+   ROLES GRID
+   ============================================================ */
+.rolesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+@media (max-width: 1200px) {
+  .rolesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .rolesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   ROLE CARD
+   ============================================================ */
+.roleCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-xs);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.roleCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+}
+
+.roleCard:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Color accents for role types */
+.roleCardAdmin::before {
+  background: var(--color-info);
+}
+
+.roleCardManager::before {
+  background: var(--color-warning);
+}
+
+.roleCardOperator::before {
+  background: var(--color-success);
+}
+
+.roleCardViewer::before {
+  background: var(--color-border-strong);
+}
+
+.roleCardCustom::before {
+  background: var(--color-accent);
+}
+
+.roleCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.roleCardNameGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.roleCardName {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+  text-transform: capitalize;
+}
+
+.builtInBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}
+
+.roleCardDescription {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-4);
+  flex: 1;
+}
+
+.roleCardMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.userCountBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+}
+
+.userCountBadge svg {
+  flex-shrink: 0;
+}
+
+.permissionCountBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.roleCardActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeIn 200ms ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modalCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  animation: scaleIn 250ms ease forwards;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.modalTitle {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+}
+
+.modalClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.modalClose:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.modalBody {
+  padding: var(--space-6);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   FORM GROUPS
+   ============================================================ */
+.formGroup {
+  margin-bottom: var(--space-5);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 480px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formGroup textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* ============================================================
+   PERMISSIONS GRID
+   ============================================================ */
+.permissionsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.permissionCategory {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.permissionCategoryHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-subtle);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.permissionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  transition: background var(--transition-fast);
+}
+
+.permissionRow:not(:last-child) {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.permissionRow:hover {
+  background: var(--color-surface-hover);
+}
+
+.permissionLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.permissionLabel span:first-child {
+  font-weight: 500;
+}
+
+.permissionLabel span:last-child {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   TOGGLE SWITCH — iOS Style
+   ============================================================ */
+.toggleSwitch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.toggleSwitch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--color-border-strong);
+  border-radius: 24px;
+  transition: background var(--transition-fast);
+}
+
+.toggleSlider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--transition-fast);
+  box-shadow: var(--shadow-xs);
+}
+
+.toggleSwitch input:checked + .toggleSlider {
+  background: var(--color-primary);
+}
+
+.toggleSwitch input:checked + .toggleSlider::before {
+  transform: translateX(20px);
+}
+
+.toggleSwitch input:disabled + .toggleSlider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   CONFIRM DIALOG
+   ============================================================ */
+.confirmDialog {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeIn 150ms ease forwards;
+}
+
+.confirmCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-6);
+  width: 100%;
+  max-width: 420px;
+  animation: scaleIn 200ms ease forwards;
+  text-align: center;
+}
+
+.confirmIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  margin: 0 auto var(--space-4);
+}
+
+.confirmTitle {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  font-family: var(--font-heading);
+  margin-bottom: var(--space-2);
+}
+
+.confirmMessage {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-6);
+}
+
+.confirmActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+.toast {
+  position: fixed;
+  top: var(--space-6);
+  right: var(--space-6);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: slideInRight 300ms ease forwards;
+  min-width: 280px;
+  max-width: 420px;
+  border: 1px solid transparent;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+.toastSuccess {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border-color: var(--color-success);
+}
+
+.toastError {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  border-color: var(--color-error);
+}
+
+.toastIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.toastMessage {
+  flex: 1;
+}
+
+.toastClose {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: opacity var(--transition-fast);
+}
+
+.toastClose:hover {
+  opacity: 1;
+}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16) var(--space-6);
+  text-align: center;
+  color: var(--color-text-tertiary);
+}
+
+.emptyState svg {
+  margin-bottom: var(--space-4);
+  opacity: 0.4;
+}
+
+.emptyState p {
+  font-size: var(--text-sm);
+  max-width: 460px;
+  line-height: 1.6;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .page {
+    padding: var(--space-4);
+  }
+
+  .pageHeader {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .headerActions {
+    width: 100%;
+  }
+
+  .headerActions button {
+    flex: 1;
+  }
+
+  .modalOverlay {
+    padding: var(--space-4);
+    align-items: flex-end;
+  }
+
+  .modalCard {
+    max-height: 90vh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  .toast {
+    left: var(--space-4);
+    right: var(--space-4);
+    min-width: unset;
+  }
+}

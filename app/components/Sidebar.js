@@ -23,6 +23,7 @@ import {
   ScanEye,
   Cpu,
   Bot,
+  Shield,
 } from 'lucide-react';
 import { useAuth } from '@/app/components/AuthProvider';
 import styles from './Sidebar.module.css';
@@ -55,6 +56,7 @@ const NAV_SECTIONS = [
     items: [
       { href: '/settings', label: 'Settings', icon: Settings, permission: 'settings.view' },
       { href: '/user-management', label: 'User Management', icon: UserCog, permission: 'users.view' },
+      { href: '/user-management/roles', label: 'Roles & Permissions', icon: Shield, permission: 'roles.manage', indent: true },
     ],
   },
 ];
