@@ -1,6 +1,53 @@
 .page {
   padding: var(--space-6);
-  max-width: 1200px;
+  max-width: 1400px;
+}
+
+/* ── Tab Navigation ────────────────────────────────────── */
+
+.tabBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-6);
+  padding: var(--space-1);
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-md);
+  width: fit-content;
+  border: 1px solid var(--color-border);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface-hover);
+}
+
+.tabActive {
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+
+.tabContent {
+  min-height: 400px;
 }
 
 .pageHeader {
@@ -197,6 +244,11 @@
   .pageHeader {
     flex-direction: column;
     gap: var(--space-2);
+  }
+
+  .tabBar {
+    width: 100%;
+    overflow-x: auto;
   }
 
   .formGrid {

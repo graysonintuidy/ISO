@@ -55,8 +55,6 @@ const NAV_SECTIONS = [
     label: 'ADMIN',
     items: [
       { href: '/settings', label: 'Settings', icon: Settings, permission: 'settings.view' },
-      { href: '/user-management', label: 'User Management', icon: UserCog, permission: 'users.view' },
-      { href: '/user-management/roles', label: 'Roles & Permissions', icon: Shield, permission: 'roles.manage', indent: true },
     ],
   },
 ];
