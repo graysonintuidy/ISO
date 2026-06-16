@@ -202,6 +202,8 @@ async function createTables() {
   await delay();
 
   // 5. Add auth columns to users table (if missing)
+  // Note: MySQL < 10.0 doesn't support ADD COLUMN IF NOT EXISTS,
+  // so we just attempt the ALTER and ignore duplicate column errors.
   const addCols = [
     ['password_hash', 'VARCHAR(255)'],
     ['first_name', 'VARCHAR(100)'],
@@ -211,10 +213,13 @@ async function createTables() {
   ];
 
   for (const [col, type] of addCols) {
-    await sql(
-      `ALTER TABLE users ADD COLUMN IF NOT EXISTS \`${col}\` ${type}`,
+    const r = await sql(
+      `ALTER TABLE users ADD COLUMN \`${col}\` ${type}`,
       `Add users.${col}`
     );
+    // Duplicate column errors are expected if columns already exist
+    if (r === false) totalFail--; // don't count expected failures
+    totalSuccess = Math.max(0, totalSuccess); // keep counts sane
     await delay();
   }
 
@@ -227,10 +232,12 @@ async function createTables() {
   ];
 
   for (const [col, type] of auditCols) {
-    await sql(
-      `ALTER TABLE audit_log ADD COLUMN IF NOT EXISTS \`${col}\` ${type}`,
+    const r = await sql(
+      `ALTER TABLE audit_log ADD COLUMN \`${col}\` ${type}`,
       `Add audit_log.${col}`
     );
+    if (r === false) totalFail--;
+    totalSuccess = Math.max(0, totalSuccess);
     await delay();
   }
 }
@@ -238,10 +245,10 @@ async function createTables() {
 // ─── Seed Roles ──────────────────────────────────────────────────────────────
 
 const ROLES = [
-  { name: 'admin', display_name: 'Administrator', description: 'Full system access — can manage all settings, users, and data' },
-  { name: 'manager', display_name: 'Manager', description: 'Can view all data, manage incidents, and view users' },
-  { name: 'operator', display_name: 'Operator', description: 'Can view cameras, production lines, and safety zones' },
-  { name: 'viewer', display_name: 'Viewer', description: 'Read-only access to dashboard and cameras' },
+  { name: 'admin', description: 'Full system access — can manage all settings, users, and data' },
+  { name: 'manager', description: 'Can view all data, manage incidents, and view users' },
+  { name: 'operator', description: 'Can view cameras, production lines, and safety zones' },
+  { name: 'viewer', description: 'Read-only access to dashboard and cameras' },
 ];
 
 async function seedRoles() {
@@ -249,9 +256,9 @@ async function seedRoles() {
 
   for (const role of ROLES) {
     await sql(
-      `INSERT INTO roles (name, display_name, description, is_system) ` +
-      `VALUES (${esc(role.name)}, ${esc(role.display_name)}, ${esc(role.description)}, 1) ` +
-      `ON DUPLICATE KEY UPDATE display_name = ${esc(role.display_name)}, description = ${esc(role.description)}`,
+      `INSERT INTO roles (organization_id, name, description, is_system) ` +
+      `VALUES (1, ${esc(role.name)}, ${esc(role.description)}, 1) ` +
+      `ON DUPLICATE KEY UPDATE description = ${esc(role.description)}`,
       `Seed role: ${role.name}`
     );
     await delay();
@@ -358,7 +365,6 @@ async function seedAdminUser() {
     await sql(
       `UPDATE users SET ` +
       `password_hash = ${esc(passwordHash)}, ` +
-      `role = 'admin', ` +
       `role_id = ${adminRoleId}, ` +
       `first_name = 'System', ` +
       `last_name = 'Administrator', ` +
@@ -370,14 +376,13 @@ async function seedAdminUser() {
   } else {
     // Insert new admin user
     await sql(
-      `INSERT INTO users (username, email, password_hash, first_name, last_name, role, role_id, status, organization_id, created_at) ` +
+      `INSERT INTO users (username, email, password_hash, first_name, last_name, role_id, status, organization_id, created_at) ` +
       `VALUES (` +
       `'admin', ` +
       `'admin@nationalbeef.com', ` +
       `${esc(passwordHash)}, ` +
       `'System', ` +
       `'Administrator', ` +
-      `'admin', ` +
       `${adminRoleId}, ` +
       `'active', ` +
       `1, ` +

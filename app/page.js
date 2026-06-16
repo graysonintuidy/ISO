@@ -14,6 +14,8 @@ import CameraFeedGrid from '@/app/components/ui/CameraFeedGrid';
 import ProductionLineCard from '@/app/components/ui/ProductionLineCard';
 import AlertFeed from '@/app/components/ui/AlertFeed';
 import DataTable from '@/app/components/ui/DataTable';
+import AIInsightsPanel from '@/app/components/ui/AIInsightsPanel';
+import AIAnalysisPanel from '@/app/components/ui/AIAnalysisPanel';
 
 import styles from './page.module.css';
 
@@ -185,6 +187,16 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* AI Row — Insights + Analysis */}
+      <div className={styles.aiRow}>
+        <div className={`card ${styles.aiCard}`}>
+          <AIInsightsPanel stats={stats} alerts={alerts} incidents={incidents} />
+        </div>
+        <div className={`card ${styles.aiCard}`}>
+          <AIAnalysisPanel stats={stats} alerts={alerts} incidents={incidents} />
         </div>
       </div>
 

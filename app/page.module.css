@@ -108,6 +108,29 @@
   margin-bottom: var(--space-2);
 }
 
+/* ============================================================
+   AI ROW — Insights + Analysis side by side
+   ============================================================ */
+.aiRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.aiCard {
+  padding: var(--space-4);
+  max-height: 520px;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 1100px) {
+  .aiRow {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Production Grid — 2×2 for 4 lines */
 .productionGrid {
   display: grid;
