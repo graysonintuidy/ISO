@@ -24,36 +24,37 @@ import {
   Cpu,
   Bot,
 } from 'lucide-react';
+import { useAuth } from '@/app/components/AuthProvider';
 import styles from './Sidebar.module.css';
 
 const NAV_SECTIONS = [
   {
     label: 'MONITORING',
     items: [
-      { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/cameras', label: 'Cameras', icon: Camera },
-      { href: '/production-lines/cameras', label: 'Line Cameras', icon: ScanEye },
-      { href: '/production-lines/machines', label: 'Machine Overview', icon: Cpu },
+      { href: '/', label: 'Dashboard', icon: LayoutDashboard, permission: 'dashboard.view' },
+      { href: '/cameras', label: 'Cameras', icon: Camera, permission: 'cameras.view' },
+      { href: '/production-lines/cameras', label: 'Line Cameras', icon: ScanEye, permission: 'production.view' },
+      { href: '/production-lines/machines', label: 'Machine Overview', icon: Cpu, permission: 'production.view' },
     ],
   },
   {
     label: 'SAFETY',
     items: [
-      { href: '/safety-zones', label: 'Safety Zones', icon: ShieldAlert },
+      { href: '/safety-zones', label: 'Safety Zones', icon: ShieldAlert, permission: 'safety.view' },
     ],
   },
   {
     label: 'OPERATIONS',
     items: [
-      { href: '/incidents', label: 'Incidents', icon: AlertTriangle },
-      { href: '/ai-assistant', label: 'AI Assistant', icon: Bot },
+      { href: '/incidents', label: 'Incidents', icon: AlertTriangle, permission: 'incidents.view' },
+      { href: '/ai-assistant', label: 'AI Assistant', icon: Bot, permission: 'ai.use' },
     ],
   },
   {
     label: 'ADMIN',
     items: [
-      { href: '/settings', label: 'Settings', icon: Settings },
-      { href: '/user-management', label: 'User Management', icon: UserCog },
+      { href: '/settings', label: 'Settings', icon: Settings, permission: 'settings.view' },
+      { href: '/user-management', label: 'User Management', icon: UserCog, permission: 'users.view' },
     ],
   },
 ];
@@ -67,11 +68,23 @@ const FACILITIES = [
 
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const pathname = usePathname();
+  const { user, permissions } = useAuth();
   const [selectedFacility, setSelectedFacility] = useState('kck');
   const [facilityOpen, setFacilityOpen] = useState(false);
   const facilityRef = useRef(null);
 
   const currentFacility = FACILITIES.find((f) => f.id === selectedFacility);
+
+  /**
+   * Check if current user has a specific permission.
+   * Admins always have all permissions.
+   */
+  const hasPermission = useCallback((permission) => {
+    if (!permission) return true; // No permission required
+    if (!user) return false;
+    if (user.role === 'admin') return true;
+    return permissions.includes(permission);
+  }, [user, permissions]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -159,35 +172,42 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
 
         {/* Navigation */}
         <nav className={styles.nav}>
-          {NAV_SECTIONS.map((section) => (
-            <div key={section.label} className={styles.section}>
-              <div className={styles.sectionLabel}>{section.label}</div>
-              {section.items.map((item) => {
-                const Icon = item.icon;
-                const isActive =
-                  item.href === '/'
-                    ? pathname === '/'
-                    : item.indent
-                    ? pathname.startsWith(item.href)
-                    : pathname === item.href;
+          {NAV_SECTIONS.map((section) => {
+            // Filter items by permission
+            const visibleItems = section.items.filter((item) => hasPermission(item.permission));
+            // Hide entire section if no visible items
+            if (visibleItems.length === 0) return null;
 
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`${styles.navItem} ${isActive ? styles.active : ''} ${item.indent ? styles.navItemIndent : ''}`}
-                    onClick={onMobileClose}
-                  >
-                    <span className={styles.navIcon}>
-                      <Icon size={item.indent ? 16 : 20} />
-                    </span>
-                    <span className={styles.navLabel}>{item.label}</span>
-                    <span className={styles.tooltip}>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
+            return (
+              <div key={section.label} className={styles.section}>
+                <div className={styles.sectionLabel}>{section.label}</div>
+                {visibleItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive =
+                    item.href === '/'
+                      ? pathname === '/'
+                      : item.indent
+                      ? pathname.startsWith(item.href)
+                      : pathname === item.href;
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`${styles.navItem} ${isActive ? styles.active : ''} ${item.indent ? styles.navItemIndent : ''}`}
+                      onClick={onMobileClose}
+                    >
+                      <span className={styles.navIcon}>
+                        <Icon size={item.indent ? 16 : 20} />
+                      </span>
+                      <span className={styles.navLabel}>{item.label}</span>
+                      <span className={styles.tooltip}>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            );
+          })}
         </nav>
 
         {/* Collapse Toggle */}

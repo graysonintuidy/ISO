@@ -2,6 +2,7 @@ import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import '@/app/globals.css';
 import ThemeProvider from '@/app/components/ThemeProvider';
+import AuthProvider from '@/app/components/AuthProvider';
 import AppShell from '@/app/components/AppShell';
 
 export const metadata = {
@@ -17,7 +18,9 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
       <body>
         <ThemeProvider>
-          <AppShell>{children}</AppShell>
+          <AuthProvider>
+            <AppShell>{children}</AppShell>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
