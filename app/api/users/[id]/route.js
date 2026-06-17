@@ -130,6 +130,7 @@ export async function PUT(request, { params }) {
  * DELETE /api/users/[id]
  *
  * Soft-delete: sets user status to 'inactive'.
+ * Hard-delete: permanently removes user when ?permanent=true is passed.
  */
 export async function DELETE(request, { params }) {
   try {
@@ -150,28 +151,48 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
 
-    // Prevent self-deactivation
+    // Prevent self-deletion/deactivation
     if (userId === session.user.id) {
-      return NextResponse.json({ error: 'You cannot deactivate your own account' }, { status: 400 });
+      return NextResponse.json({ error: 'You cannot delete your own account' }, { status: 400 });
     }
 
-    const result = await dbWrite('users', 'update', {
-      status: 'inactive',
-      updated_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
-    }, { id: userId });
+    const { searchParams } = new URL(request.url);
+    const permanent = searchParams.get('permanent') === 'true';
 
-    if (!result.success) {
-      return NextResponse.json({ error: result.message || 'Failed to deactivate user' }, { status: 500 });
+    if (permanent) {
+      // Hard delete — permanently remove from database
+      const result = await dbWrite('users', 'delete', null, { id: userId });
+
+      if (!result.success) {
+        return NextResponse.json({ error: result.message || 'Failed to delete user' }, { status: 500 });
+      }
+
+      // Log audit event
+      await logAuditEvent(session.user.id, 'user_deleted', {
+        target_user_id: userId,
+      });
+
+      return NextResponse.json({ success: true, message: 'User permanently deleted' });
+    } else {
+      // Soft delete — set status to inactive
+      const result = await dbWrite('users', 'update', {
+        status: 'inactive',
+        updated_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      }, { id: userId });
+
+      if (!result.success) {
+        return NextResponse.json({ error: result.message || 'Failed to deactivate user' }, { status: 500 });
+      }
+
+      // Log audit event
+      await logAuditEvent(session.user.id, 'user_deactivated', {
+        target_user_id: userId,
+      });
+
+      return NextResponse.json({ success: true, message: 'User deactivated successfully' });
     }
-
-    // Log audit event
-    await logAuditEvent(session.user.id, 'user_deactivated', {
-      target_user_id: userId,
-    });
-
-    return NextResponse.json({ success: true, message: 'User deactivated successfully' });
   } catch (error) {
-    console.error('[API] Deactivate user error:', error);
-    return NextResponse.json({ error: 'Failed to deactivate user' }, { status: 500 });
+    console.error('[API] Delete user error:', error);
+    return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 });
   }
 }

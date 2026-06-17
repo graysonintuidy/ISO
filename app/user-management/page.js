@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { UserCog, Plus, Edit3, UserX, X, Eye, EyeOff, Shield, Search, Check, AlertTriangle } from 'lucide-react';
+import { UserCog, Plus, Edit3, UserX, Trash2, X, Eye, EyeOff, Shield, Search, Check, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/app/components/AuthProvider';
 import DataTable from '@/app/components/ui/DataTable';
 import StatusBadge from '@/app/components/ui/StatusBadge';
@@ -25,6 +25,7 @@ export default function UserManagementPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
   // Toast state
@@ -84,6 +85,11 @@ export default function UserManagementPage() {
     setShowDeactivateConfirm(true);
   };
 
+  const handleDeleteClick = (user) => {
+    setSelectedUser(user);
+    setShowDeleteConfirm(true);
+  };
+
   const handleDeactivateConfirm = async () => {
     if (!selectedUser) return;
     try {
@@ -99,6 +105,25 @@ export default function UserManagementPage() {
       showToast('Failed to deactivate user', 'error');
     } finally {
       setShowDeactivateConfirm(false);
+      setSelectedUser(null);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedUser) return;
+    try {
+      const res = await fetch(`/api/users/${selectedUser.id}?permanent=true`, { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`${selectedUser.username} has been permanently deleted`);
+        fetchUsers();
+      } else {
+        showToast(data.error || 'Failed to delete user', 'error');
+      }
+    } catch {
+      showToast('Failed to delete user', 'error');
+    } finally {
+      setShowDeleteConfirm(false);
       setSelectedUser(null);
     }
   };
@@ -182,6 +207,16 @@ export default function UserManagementPage() {
               style={{ color: 'var(--color-error)' }}
             >
               <UserX size={14} />
+            </button>
+          )}
+          {row.id !== currentUser?.id && (
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={(e) => { e.stopPropagation(); handleDeleteClick(row); }}
+              title="Delete user permanently"
+              style={{ color: 'var(--color-error)', opacity: 0.7 }}
+            >
+              <Trash2 size={14} />
             </button>
           )}
         </div>
@@ -312,6 +347,30 @@ export default function UserManagementPage() {
               <button className="btn btn-danger" onClick={handleDeactivateConfirm}>
                 <UserX size={14} />
                 Deactivate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation */}
+      {showDeleteConfirm && selectedUser && (
+        <div className={styles.modalOverlay} onClick={() => setShowDeleteConfirm(false)}>
+          <div className={styles.confirmDialog} onClick={e => e.stopPropagation()}>
+            <div className={`${styles.confirmIcon} ${styles.confirmIconDelete}`}>
+              <Trash2 size={32} />
+            </div>
+            <h3 className={styles.confirmTitle}>Delete User Permanently</h3>
+            <p className={styles.confirmMessage}>
+              Are you sure you want to permanently delete <strong>{selectedUser.first_name} {selectedUser.last_name}</strong> (@{selectedUser.username})? This action <strong>cannot be undone</strong> and all associated data will be removed.
+            </p>
+            <div className={styles.confirmActions}>
+              <button className="btn btn-secondary" onClick={() => setShowDeleteConfirm(false)}>
+                Cancel
+              </button>
+              <button className="btn btn-danger" onClick={handleDeleteConfirm}>
+                <Trash2 size={14} />
+                Delete Permanently
               </button>
             </div>
           </div>

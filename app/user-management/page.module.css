@@ -438,6 +438,11 @@
   margin: 0 auto var(--space-4);
 }
 
+.confirmIconDelete {
+  background: var(--color-error);
+  color: white;
+}
+
 .confirmTitle {
   font-size: var(--text-lg);
   font-weight: 700;
