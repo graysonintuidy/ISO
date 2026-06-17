@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import {
   Camera,
   AlertTriangle,
@@ -8,6 +9,13 @@ import {
   Factory,
   ShieldCheck,
   Wifi,
+  X,
+  Clock,
+  MapPin,
+  User,
+  Timer,
+  Eye,
+  ExternalLink,
 } from 'lucide-react';
 import StatTile from '@/app/components/ui/StatTile';
 import CameraFeedGrid from '@/app/components/ui/CameraFeedGrid';
@@ -26,6 +34,7 @@ const REFRESH_INTERVAL = 30000; // 30 seconds
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedIncident, setSelectedIncident] = useState(null);
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -151,42 +160,41 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Top Row — Camera Feeds + Production Lines side by side */}
-      <div className={styles.topRow}>
-        <div className={`card ${styles.compactCard}`}>
-          <div className="card-header">
-            <span className="card-title">Camera Feeds</span>
-            <span className={styles.countBadge}>{cameras.length} cameras</span>
-          </div>
-          <CameraFeedGrid cameras={cameras} />
+      {/* Camera Feeds — Full Width */}
+      <div className={`card ${styles.cameraCard}`}>
+        <div className="card-header">
+          <span className="card-title">Camera Feeds</span>
+          <span className={styles.countBadge}>{cameras.length} cameras</span>
         </div>
+        <CameraFeedGrid cameras={cameras} />
+      </div>
 
-        <div className={`card ${styles.compactCard}`}>
-          <div className="card-header">
-            <span className="card-title">Production Lines</span>
-            <span className={styles.countBadge}>
-              {productionLines.length > 0 ? `${productionLines.length} lines` : 'No lines configured'}
-            </span>
-          </div>
-          <div className={styles.productionGrid}>
-            {productionLines.length > 0 ? (
-              productionLines.map((line) => (
-                <ProductionLineCard
-                  key={line.id}
-                  name={line.name}
-                  lineNumber={line.line_number}
-                  status={line.status}
-                  throughput={line.current_speed}
-                  targetThroughput={line.target_throughput}
-                />
-              ))
-            ) : (
-              <div className="empty-state">
-                <Factory size={36} />
-                <p>No production lines configured yet.</p>
-              </div>
-            )}
-          </div>
+      {/* Production Lines — Full Width Row */}
+      <div className={`card ${styles.productionCard}`}>
+        <div className="card-header">
+          <span className="card-title">Production Lines</span>
+          <span className={styles.countBadge}>
+            {productionLines.length > 0 ? `${productionLines.length} lines` : 'No lines configured'}
+          </span>
+        </div>
+        <div className={styles.productionGrid}>
+          {productionLines.length > 0 ? (
+            productionLines.map((line) => (
+              <ProductionLineCard
+                key={line.id}
+                name={line.name}
+                lineNumber={line.line_number}
+                status={line.status}
+                throughput={line.current_speed}
+                targetThroughput={line.target_throughput}
+              />
+            ))
+          ) : (
+            <div className="empty-state">
+              <Factory size={36} />
+              <p>No production lines configured yet.</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -207,12 +215,17 @@ export default function DashboardPage() {
           <div className={`card ${styles.incidentCard}`}>
             <div className="card-header">
               <span className="card-title">Recent Incidents</span>
+              <Link href="/incidents" className={styles.viewAllLink}>
+                View All
+                <ExternalLink size={12} />
+              </Link>
             </div>
             <DataTable
               columns={incidentColumns}
               data={incidents}
               emptyMessage="No incidents recorded. Incident reports from cameras, zones, and sensors will appear here."
               pageSize={5}
+              onRowClick={(row) => setSelectedIncident(row)}
             />
           </div>
         </div>
@@ -227,6 +240,115 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Incident Detail Modal */}
+      {selectedIncident && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedIncident(null)}>
+          <div className={styles.modalPanel} onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className={styles.modalHeader}>
+              <div className={styles.modalHeaderLeft}>
+                <span className={`badge badge-${selectedIncident.severity === 'critical' ? 'error' : selectedIncident.severity === 'high' ? 'warning' : selectedIncident.severity === 'medium' ? 'info' : 'neutral'} ${styles.modalSeverityBadge}`}>
+                  {selectedIncident.severity}
+                </span>
+                <h3 className={styles.modalTitle}>{selectedIncident.title || selectedIncident.description}</h3>
+              </div>
+              <button className={styles.modalClose} onClick={() => setSelectedIncident(null)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Status Bar */}
+            <div className={styles.modalStatusBar}>
+              <span className={`badge ${selectedIncident.status === 'open' ? 'badge-error' : selectedIncident.status === 'investigating' ? 'badge-warning' : 'badge-success'}`}>
+                {selectedIncident.status}
+              </span>
+              <span className={styles.modalIncidentType}>
+                {(selectedIncident.incident_type || '').replace(/_/g, ' ')}
+              </span>
+            </div>
+
+            {/* Info Grid */}
+            <div className={styles.modalInfoGrid}>
+              <div className={styles.modalInfoItem}>
+                <Clock size={14} className={styles.modalInfoIcon} />
+                <div className={styles.modalInfoContent}>
+                  <span className={styles.modalInfoLabel}>Date & Time</span>
+                  <span className={styles.modalInfoValue}>
+                    {selectedIncident.created_at
+                      ? new Date(selectedIncident.created_at).toLocaleString('en-US', {
+                          month: 'short', day: 'numeric', year: 'numeric',
+                          hour: '2-digit', minute: '2-digit', second: '2-digit',
+                        })
+                      : '—'}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.modalInfoItem}>
+                <User size={14} className={styles.modalInfoIcon} />
+                <div className={styles.modalInfoContent}>
+                  <span className={styles.modalInfoLabel}>Person Involved</span>
+                  <span className={styles.modalInfoValue}>
+                    {selectedIncident.metadata?.person || 'Unknown'}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.modalInfoItem}>
+                <MapPin size={14} className={styles.modalInfoIcon} />
+                <div className={styles.modalInfoContent}>
+                  <span className={styles.modalInfoLabel}>Zone / Location</span>
+                  <span className={styles.modalInfoValue}>
+                    {selectedIncident.metadata?.zoneName || 'Unknown Zone'}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.modalInfoItem}>
+                <Timer size={14} className={styles.modalInfoIcon} />
+                <div className={styles.modalInfoContent}>
+                  <span className={styles.modalInfoLabel}>Duration</span>
+                  <span className={styles.modalInfoValue}>
+                    {selectedIncident.metadata?.duration || 'N/A'}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.modalInfoItem}>
+                <Camera size={14} className={styles.modalInfoIcon} />
+                <div className={styles.modalInfoContent}>
+                  <span className={styles.modalInfoLabel}>Camera</span>
+                  <span className={styles.modalInfoValue}>
+                    {selectedIncident.metadata?.camera || 'Unknown'}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.modalInfoItem}>
+                <Eye size={14} className={styles.modalInfoIcon} />
+                <div className={styles.modalInfoContent}>
+                  <span className={styles.modalInfoLabel}>Incident ID</span>
+                  <span className={styles.modalInfoValue}>
+                    #{selectedIncident.id || '—'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Description */}
+            {selectedIncident.description && (
+              <div className={styles.modalSection}>
+                <div className={styles.modalSectionTitle}>Description</div>
+                <p className={styles.modalDescription}>{selectedIncident.description}</p>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className={styles.modalActions}>
+              <Link href="/incidents" className={styles.modalViewAllBtn}>
+                <ExternalLink size={14} />
+                View All Incidents
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

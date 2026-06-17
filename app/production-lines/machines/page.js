@@ -58,6 +58,34 @@ const SENSOR_ICON_MAP = {
   accuracy: Activity,
 };
 
+/* Default min/max/threshold ranges per sensor key */
+const SENSOR_DEFAULTS = {
+  temperature:         { min: 20, max: 70, threshold: 50 },
+  vibration:           { min: 0, max: 12, threshold: 8 },
+  powerDraw:           { min: 0, max: 30, threshold: 22 },
+  motorRPM:            { min: 0, max: 3000, threshold: 2500 },
+  beltSpeed:           { min: 0, max: 6, threshold: 5 },
+  bladeRPM:            { min: 0, max: 4000, threshold: 3500 },
+  vacuumPressure:      { min: -30, max: 0, threshold: -25 },
+  formingPressure:     { min: 0, max: 80, threshold: 65 },
+  refrigerantPressure: { min: 100, max: 250, threshold: 220 },
+  sensitivity:         { min: 90, max: 100, threshold: 99.5 },
+  labelStock:          { min: 0, max: 100, threshold: 80 },
+  jointStress:         { min: 0, max: 200, threshold: 150 },
+  accuracy:            { min: 95, max: 100, threshold: 99.9 },
+};
+
+function enrichSensor(key, sensor) {
+  const defaults = SENSOR_DEFAULTS[key] || { min: 0, max: 100, threshold: 80 };
+  return {
+    ...defaults,
+    ...sensor,
+    min: sensor.min ?? defaults.min,
+    max: sensor.max ?? defaults.max,
+    threshold: sensor.threshold ?? defaults.threshold,
+  };
+}
+
 function formatSensorName(key) {
   return key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
 }
@@ -224,8 +252,9 @@ export default function MachinesPage() {
     jitterRef.current = setInterval(() => {
       setSensorJitter((prev) => {
         const next = { ...prev };
-        Object.entries(expandedMachine.sensors).forEach(([key, sensor]) => {
-          const range = (sensor.max ?? 100) - (sensor.min ?? 0);
+        Object.entries(expandedMachine.sensors).forEach(([key, rawSensor]) => {
+          const sensor = enrichSensor(key, rawSensor);
+          const range = sensor.max - sensor.min;
           const step = range * 0.01; // 1% of range
           const direction = Math.random() > 0.5 ? 1 : -1;
           const currentOffset = prev[key] || 0;
@@ -233,8 +262,8 @@ export default function MachinesPage() {
           // Clamp offset so value stays within [min, max]
           const baseValue = sensor.value;
           const newValue = baseValue + newOffset;
-          if (newValue > (sensor.max ?? 100)) newOffset = (sensor.max ?? 100) - baseValue;
-          if (newValue < (sensor.min ?? 0)) newOffset = (sensor.min ?? 0) - baseValue;
+          if (newValue > sensor.max) newOffset = sensor.max - baseValue;
+          if (newValue < sensor.min) newOffset = sensor.min - baseValue;
           next[key] = newOffset;
         });
         return next;
@@ -465,16 +494,18 @@ export default function MachinesPage() {
           <div className={styles.detailSection}>
             <div className={styles.detailSectionTitle}>Sensor Readings</div>
             <div className={styles.sensorGaugesGrid}>
-              {Object.entries(expandedMachine.sensors).map(([key, sensor]) => {
+              {Object.entries(expandedMachine.sensors).map(([key, rawSensor]) => {
+                const sensor = enrichSensor(key, rawSensor);
                 const jitterOffset = sensorJitter[key] || 0;
                 const liveValue = parseFloat((sensor.value + jitterOffset).toFixed(1));
                 const liveSensor = { ...sensor, value: liveValue };
                 const state = getSensorGaugeState(liveSensor);
-                const pct = sensor.max !== sensor.min
-                  ? ((liveValue - sensor.min) / (sensor.max - sensor.min)) * 100
+                const range = sensor.max - sensor.min;
+                const pct = range > 0
+                  ? ((liveValue - sensor.min) / range) * 100
                   : 0;
-                const thresholdPct = sensor.threshold !== undefined && sensor.max !== sensor.min
-                  ? ((sensor.threshold - sensor.min) / (sensor.max - sensor.min)) * 100
+                const thresholdPct = range > 0
+                  ? ((sensor.threshold - sensor.min) / range) * 100
                   : null;
                 const SIcon = SENSOR_ICON_MAP[key] || Activity;
                 const fillClass =

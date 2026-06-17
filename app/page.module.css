@@ -1,6 +1,9 @@
 .dashboard {
   padding: var(--space-5);
   max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 /* Page Header */
@@ -8,7 +11,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-4);
   flex-shrink: 0;
 }
 
@@ -47,7 +49,6 @@
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
   flex-shrink: 0;
 }
 
@@ -59,7 +60,6 @@
   grid-template-columns: 3fr 2fr;
   gap: var(--space-4);
   align-items: start;
-  margin-top: var(--space-4);
 }
 
 @media (max-width: 1200px) {
@@ -89,24 +89,17 @@
 }
 
 /* ============================================================
-   TOP ROW — Camera + Production Lines side by side
+   CAMERA CARD — Full width, generous padding
    ============================================================ */
-.topRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-4);
-  align-items: start;
-  flex-shrink: 0;
+.cameraCard {
+  padding: var(--space-4);
 }
 
-/* Compact card variant for dashboard panels */
-.compactCard {
-  padding: var(--space-3);
-}
-
-.compactCard .card-header,
-.compactCard > div:first-child {
-  margin-bottom: var(--space-2);
+/* ============================================================
+   PRODUCTION CARD — Full width below camera
+   ============================================================ */
+.productionCard {
+  padding: var(--space-4);
 }
 
 /* ============================================================
@@ -116,7 +109,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
-  margin-top: var(--space-4);
 }
 
 .aiCard {
@@ -132,13 +124,12 @@
   }
 }
 
-/* Production Grid — 2×2 for 4 lines */
+/* Production Grid — responsive auto-fill row */
 .productionGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: var(--space-3);
 }
-
 
 
 /* Incident Card */
@@ -154,8 +145,8 @@
 
 /* ─── Responsive ────────────────────────── */
 @media (max-width: 900px) {
-  .topRow {
-    grid-template-columns: 1fr;
+  .productionGrid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
 }
 
@@ -182,5 +173,247 @@
 @media (max-width: 480px) {
   .statsRow {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================================
+   VIEW ALL LINK — Incidents Card Header
+   ============================================================ */
+.viewAllLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast), gap var(--transition-fast);
+}
+
+.viewAllLink:hover {
+  color: var(--color-primary-hover, #1d4ed8);
+  gap: 6px;
+}
+
+/* ============================================================
+   INCIDENT DETAIL MODAL — Dashboard Popup
+   ============================================================ */
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-4);
+  animation: modalFadeIn 0.2s ease;
+}
+
+.modalPanel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 580px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  animation: modalSlideUp 0.25s ease;
+}
+
+/* ─── Modal Header ─── */
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-5) var(--space-2);
+  gap: var(--space-3);
+}
+
+.modalHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.modalSeverityBadge {
+  flex-shrink: 0;
+  text-transform: uppercase;
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+}
+
+.modalTitle {
+  font-size: var(--text-base);
+  font-weight: 600;
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  min-width: 0;
+}
+
+.modalClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-surface-hover);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.modalClose:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+/* ─── Status Bar ─── */
+.modalStatusBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+.modalIncidentType {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+/* ─── Info Grid ─── */
+.modalInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--color-border-subtle);
+  border-top: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.modalInfoItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+}
+
+.modalInfoIcon {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.modalInfoContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.modalInfoLabel {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.modalInfoValue {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  word-break: break-word;
+}
+
+/* ─── Description Section ─── */
+.modalSection {
+  padding: var(--space-4) var(--space-5);
+}
+
+.modalSectionTitle {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.modalDescription {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* ─── Actions ─── */
+.modalActions {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5) var(--space-5);
+}
+
+.modalViewAllBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  font-family: var(--font-body);
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.modalViewAllBtn:hover {
+  background: var(--color-primary-hover, #1d4ed8);
+  transform: translateY(-1px);
+}
+
+/* ─── Modal Responsive ─── */
+@media (max-width: 600px) {
+  .modalPanel {
+    max-width: 100%;
+    border-radius: var(--radius-lg);
+  }
+
+  .modalInfoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .modalHeaderLeft {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
   }
 }
