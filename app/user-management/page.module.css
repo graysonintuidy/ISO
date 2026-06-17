@@ -186,6 +186,17 @@
   justify-content: flex-end;
 }
 
+.deleteBtn {
+  color: var(--color-error) !important;
+  opacity: 0.65;
+  transition: all var(--transition-fast);
+}
+
+.deleteBtn:hover {
+  opacity: 1 !important;
+  background: var(--color-error-bg) !important;
+}
+
 /* ── Modal ─────────────────────────────────────────────── */
 
 .modalOverlay {

@@ -190,37 +190,39 @@ export default function UserManagementPage() {
       key: 'actions',
       label: '',
       sortable: false,
-      render: (_, row) => (
-        <div className={styles.actionsCell}>
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={(e) => { e.stopPropagation(); handleEditClick(row); }}
-            title="Edit user"
-          >
-            <Edit3 size={14} />
-          </button>
-          {row.id !== currentUser?.id && row.status === 'active' && (
+      render: (_, row) => {
+        const isSelf = row.id === currentUser?.id || row.username === currentUser?.username;
+        return (
+          <div className={styles.actionsCell}>
             <button
               className="btn btn-ghost btn-sm"
-              onClick={(e) => { e.stopPropagation(); handleDeactivateClick(row); }}
-              title="Deactivate user"
-              style={{ color: 'var(--color-error)' }}
+              onClick={(e) => { e.stopPropagation(); handleEditClick(row); }}
+              title="Edit user"
             >
-              <UserX size={14} />
+              <Edit3 size={14} />
             </button>
-          )}
-          {row.id !== currentUser?.id && (
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={(e) => { e.stopPropagation(); handleDeleteClick(row); }}
-              title="Delete user permanently"
-              style={{ color: 'var(--color-error)', opacity: 0.7 }}
-            >
-              <Trash2 size={14} />
-            </button>
-          )}
-        </div>
-      ),
+            {!isSelf && row.status === 'active' && (
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={(e) => { e.stopPropagation(); handleDeactivateClick(row); }}
+                title="Deactivate user"
+                style={{ color: 'var(--color-warning)' }}
+              >
+                <UserX size={14} />
+              </button>
+            )}
+            {!isSelf && (
+              <button
+                className={`btn btn-ghost btn-sm ${styles.deleteBtn}`}
+                onClick={(e) => { e.stopPropagation(); handleDeleteClick(row); }}
+                title="Delete user permanently"
+              >
+                <Trash2 size={14} />
+              </button>
+            )}
+          </div>
+        );
+      },
     },
   ];
 

@@ -12,6 +12,11 @@ import {
   Camera,
   AlertTriangle,
   Clock,
+  Copy,
+  Check,
+  Sparkles,
+  Activity,
+  Users,
 } from 'lucide-react';
 import AIResponseRenderer from './AIResponseRenderer';
 import styles from './page.module.css';
@@ -25,16 +30,57 @@ function formatTime(date) {
   });
 }
 
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
 /* ---------- Suggested Questions ---------- */
 const SUGGESTIONS = [
-  'How many unresolved incidents do we have right now?',
-  'Which safety zones have active breaches?',
-  'Show me the most critical incidents today',
-  'What is the current compliance score?',
-  'Are there any unauthorized access incidents?',
-  'Which cameras are currently offline?',
-  'Give me a safety summary for today',
-  'Who are the employees involved in recent incidents?',
+  {
+    icon: AlertTriangle,
+    title: 'Unresolved incidents',
+    question: 'How many unresolved incidents do we have right now?',
+    desc: 'View all open and investigating incidents across the facility',
+  },
+  {
+    icon: Shield,
+    title: 'Safety zone breaches',
+    question: 'Which safety zones have active breaches?',
+    desc: 'Check real-time breach status for all monitored zones',
+  },
+  {
+    icon: Activity,
+    title: 'Today\'s critical alerts',
+    question: 'Show me the most critical incidents today',
+    desc: 'Review high-priority incidents requiring immediate attention',
+  },
+  {
+    icon: Camera,
+    title: 'Camera status',
+    question: 'Which cameras are currently offline?',
+    desc: 'Monitor connectivity and health of surveillance cameras',
+  },
+];
+
+/* ---------- Capability Pills ---------- */
+const CAPABILITIES = [
+  { icon: AlertTriangle, label: 'Incidents' },
+  { icon: Shield, label: 'Safety Zones' },
+  { icon: Camera, label: 'Cameras' },
+  { icon: Users, label: 'Employees' },
+  { icon: Activity, label: 'Alerts' },
+  { icon: Database, label: 'Production Lines' },
+];
+
+/* ---------- Thinking State Labels ---------- */
+const THINKING_LABELS = [
+  'Analyzing your query…',
+  'Querying database…',
+  'Processing results…',
+  'Generating response…',
 ];
 
 /* ============================================================
@@ -45,6 +91,8 @@ export default function AIAssistantPage() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [dbContext, setDbContext] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+  const [thinkingLabelIdx, setThinkingLabelIdx] = useState(0);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -57,6 +105,18 @@ export default function AIAssistantPage() {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  // Cycle thinking labels
+  useEffect(() => {
+    if (!loading) {
+      setThinkingLabelIdx(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setThinkingLabelIdx((prev) => (prev + 1) % THINKING_LABELS.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const sendMessage = useCallback(async (text) => {
     const userMessage = text || input.trim();
@@ -139,6 +199,16 @@ export default function AIAssistantPage() {
     inputRef.current?.focus();
   }, []);
 
+  const copyMessage = useCallback(async (msg) => {
+    try {
+      await navigator.clipboard.writeText(msg.content);
+      setCopiedId(msg.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      // Clipboard API not available
+    }
+  }, []);
+
   // Auto-resize textarea
   const handleInputChange = useCallback((e) => {
     setInput(e.target.value);
@@ -154,13 +224,14 @@ export default function AIAssistantPage() {
         <div className={styles.headerLeft}>
           <div className={styles.aiIcon}>
             <Bot size={22} />
+            <div className={styles.statusDot} />
           </div>
           <div className={styles.headerInfo}>
             <h1 className={styles.pageTitle}>AI Assistant</h1>
             <div className={styles.pageSubtitle}>
               Full database access
               <span className={styles.modelBadge}>
-                <Zap size={8} />
+                <Sparkles size={9} />
                 Claude
               </span>
             </div>
@@ -170,6 +241,7 @@ export default function AIAssistantPage() {
           <button className={styles.clearBtn} onClick={clearChat}>
             <Trash2 size={12} />
             Clear Chat
+            <span className={styles.clearBtnShortcut}>⌘K</span>
           </button>
         )}
       </div>
@@ -182,23 +254,38 @@ export default function AIAssistantPage() {
             /* Welcome State */
             <div className={styles.welcomeState}>
               <div className={styles.welcomeIcon}>
-                <Bot size={28} />
+                <Sparkles size={28} />
               </div>
+              <div className={styles.welcomeGreeting}>{getGreeting()}</div>
               <div className={styles.welcomeTitle}>
-                National Beef AI Assistant
+                How can I help you today?
               </div>
               <div className={styles.welcomeDesc}>
                 I have full access to your facility database — incidents, safety zones, 
                 cameras, alerts, employees, and production lines. Ask me anything.
               </div>
+              <div className={styles.capabilityPills}>
+                {CAPABILITIES.map((cap) => (
+                  <span key={cap.label} className={styles.capabilityPill}>
+                    <cap.icon size={12} />
+                    {cap.label}
+                  </span>
+                ))}
+              </div>
               <div className={styles.suggestionsGrid}>
-                {SUGGESTIONS.slice(0, 6).map((s) => (
+                {SUGGESTIONS.map((s) => (
                   <button
-                    key={s}
-                    className={styles.suggestionBtn}
-                    onClick={() => handleSuggestion(s)}
+                    key={s.question}
+                    className={styles.suggestionCard}
+                    onClick={() => handleSuggestion(s.question)}
                   >
-                    {s}
+                    <div className={styles.suggestionCardIcon}>
+                      <s.icon size={16} />
+                    </div>
+                    <div className={styles.suggestionCardContent}>
+                      <div className={styles.suggestionCardTitle}>{s.title}</div>
+                      <div className={styles.suggestionCardDesc}>{s.desc}</div>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -212,59 +299,96 @@ export default function AIAssistantPage() {
                     msg.role === 'user' ? styles.messageUser : styles.messageAssistant
                   }`}
                 >
-                  <div
-                    className={`${styles.messageAvatar} ${
-                      msg.role === 'user' ? styles.avatarUser : styles.avatarAssistant
-                    }`}
-                  >
-                    {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
-                  </div>
-                  <div>
-                    <div
-                      className={`${styles.messageBubble} ${
-                        msg.role === 'user'
-                          ? styles.bubbleUser
-                          : msg.error
-                          ? `${styles.bubbleAssistant} ${styles.errorBubble}`
-                          : styles.bubbleAssistant
-                      }`}
-                    >
-                      {msg.role === 'assistant' ? (
-                        <AIResponseRenderer content={msg.content} />
-                      ) : (
-                        msg.content
-                      )}
-                    </div>
-                    <div
-                      className={`${styles.messageMeta} ${
-                        msg.role === 'user' ? styles.messageMetaUser : ''
-                      }`}
-                    >
-                      <span>{formatTime(msg.timestamp)}</span>
-                      {msg.responseTime && (
-                        <span className={styles.responseTime}>
-                          <Clock size={8} />
-                          {(msg.responseTime / 1000).toFixed(1)}s
+                  {msg.role === 'user' ? (
+                    /* User message */
+                    <>
+                      <div className={`${styles.messageAvatar} ${styles.avatarUser}`}>
+                        <User size={14} />
+                      </div>
+                      <div>
+                        <div className={`${styles.messageBubble} ${styles.bubbleUser}`}>
+                          {msg.content}
+                        </div>
+                        <div className={`${styles.messageMeta} ${styles.messageMetaUser}`}>
+                          <span>{formatTime(msg.timestamp)}</span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    /* Assistant message */
+                    <>
+                      <div className={styles.assistantLabel}>
+                        <span className={styles.assistantLabelIcon}>
+                          <Sparkles size={10} />
                         </span>
-                      )}
-                    </div>
-                  </div>
+                        AI Assistant
+                      </div>
+                      <div
+                        className={`${styles.messageBubble} ${
+                          msg.error
+                            ? `${styles.bubbleAssistant} ${styles.errorBubble}`
+                            : styles.bubbleAssistant
+                        }`}
+                      >
+                        <AIResponseRenderer content={msg.content} />
+                      </div>
+                      <div className={styles.messageMeta}>
+                        <span>{formatTime(msg.timestamp)}</span>
+                        {msg.responseTime && (
+                          <span className={styles.responseTime}>
+                            <Clock size={8} />
+                            {(msg.responseTime / 1000).toFixed(1)}s
+                          </span>
+                        )}
+                      </div>
+                      <div className={styles.messageActions}>
+                        <button
+                          className={`${styles.copyBtn} ${copiedId === msg.id ? styles.copied : ''}`}
+                          onClick={() => copyMessage(msg)}
+                        >
+                          {copiedId === msg.id ? (
+                            <>
+                              <Check size={10} />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={10} />
+                              Copy
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
 
               {/* Thinking indicator */}
               {loading && (
                 <div className={styles.thinkingMessage}>
-                  <div className={`${styles.messageAvatar} ${styles.avatarAssistant}`}>
-                    <Bot size={16} />
+                  <div className={styles.assistantLabel}>
+                    <span className={styles.assistantLabelIcon}>
+                      <Sparkles size={10} />
+                    </span>
+                    AI Assistant
                   </div>
                   <div className={styles.thinkingBubble}>
-                    <div className={styles.thinkingDots}>
-                      <div className={styles.thinkingDot} />
-                      <div className={styles.thinkingDot} />
-                      <div className={styles.thinkingDot} />
+                    <div className={styles.thinkingHeader}>
+                      <div className={styles.thinkingDots}>
+                        <div className={styles.thinkingDot} />
+                        <div className={styles.thinkingDot} />
+                        <div className={styles.thinkingDot} />
+                      </div>
+                      <div className={styles.thinkingLabel} key={thinkingLabelIdx}>
+                        {THINKING_LABELS[thinkingLabelIdx]}
+                      </div>
                     </div>
-                    Querying database & thinking…
+                    <div className={styles.thinkingLines}>
+                      <div className={styles.thinkingLine} />
+                      <div className={styles.thinkingLine} />
+                      <div className={styles.thinkingLine} />
+                    </div>
                   </div>
                 </div>
               )}
@@ -300,9 +424,9 @@ export default function AIAssistantPage() {
           </div>
         )}
 
-        {/* Input Area */}
+        {/* Input Area — Floating */}
         <div className={styles.inputArea}>
-          <div className={styles.inputWrapper}>
+          <div className={styles.inputContainer}>
             <textarea
               ref={inputRef}
               className={styles.chatInput}
@@ -313,15 +437,15 @@ export default function AIAssistantPage() {
               rows={1}
               disabled={loading}
             />
+            <button
+              className={`${styles.sendBtn} ${input.trim() ? styles.sendBtnActive : ''}`}
+              onClick={() => sendMessage()}
+              disabled={!input.trim() || loading}
+              aria-label="Send message"
+            >
+              <Send size={16} />
+            </button>
           </div>
-          <button
-            className={styles.sendBtn}
-            onClick={() => sendMessage()}
-            disabled={!input.trim() || loading}
-            aria-label="Send message"
-          >
-            <Send size={18} />
-          </button>
         </div>
       </div>
     </div>
