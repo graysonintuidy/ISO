@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import {
   Cpu,
   Activity,
@@ -196,6 +196,58 @@ export default function MachinesPage() {
     if (!expandedId) return null;
     return machines.find((m) => m.id === expandedId) || null;
   }, [machines, expandedId]);
+
+  /* ---------- Dynamic sensor jitter (±1% every second) ---------- */
+  const [sensorJitter, setSensorJitter] = useState({});
+  const jitterRef = useRef(null);
+
+  useEffect(() => {
+    // Clear any previous interval
+    if (jitterRef.current) {
+      clearInterval(jitterRef.current);
+      jitterRef.current = null;
+    }
+
+    if (!expandedMachine) {
+      setSensorJitter({});
+      return;
+    }
+
+    // Initialize jitter offsets to 0
+    const initialJitter = {};
+    Object.keys(expandedMachine.sensors).forEach((key) => {
+      initialJitter[key] = 0;
+    });
+    setSensorJitter(initialJitter);
+
+    // Every second, walk each sensor's offset by ±1% of its range
+    jitterRef.current = setInterval(() => {
+      setSensorJitter((prev) => {
+        const next = { ...prev };
+        Object.entries(expandedMachine.sensors).forEach(([key, sensor]) => {
+          const range = (sensor.max ?? 100) - (sensor.min ?? 0);
+          const step = range * 0.01; // 1% of range
+          const direction = Math.random() > 0.5 ? 1 : -1;
+          const currentOffset = prev[key] || 0;
+          let newOffset = currentOffset + direction * step;
+          // Clamp offset so value stays within [min, max]
+          const baseValue = sensor.value;
+          const newValue = baseValue + newOffset;
+          if (newValue > (sensor.max ?? 100)) newOffset = (sensor.max ?? 100) - baseValue;
+          if (newValue < (sensor.min ?? 0)) newOffset = (sensor.min ?? 0) - baseValue;
+          next[key] = newOffset;
+        });
+        return next;
+      });
+    }, 1000);
+
+    return () => {
+      if (jitterRef.current) {
+        clearInterval(jitterRef.current);
+        jitterRef.current = null;
+      }
+    };
+  }, [expandedMachine]);
 
   /* ---------- All unacknowledged alerts ---------- */
   const activeAlerts = useMemo(() => {
@@ -414,9 +466,12 @@ export default function MachinesPage() {
             <div className={styles.detailSectionTitle}>Sensor Readings</div>
             <div className={styles.sensorGaugesGrid}>
               {Object.entries(expandedMachine.sensors).map(([key, sensor]) => {
-                const state = getSensorGaugeState(sensor);
+                const jitterOffset = sensorJitter[key] || 0;
+                const liveValue = parseFloat((sensor.value + jitterOffset).toFixed(1));
+                const liveSensor = { ...sensor, value: liveValue };
+                const state = getSensorGaugeState(liveSensor);
                 const pct = sensor.max !== sensor.min
-                  ? ((sensor.value - sensor.min) / (sensor.max - sensor.min)) * 100
+                  ? ((liveValue - sensor.min) / (sensor.max - sensor.min)) * 100
                   : 0;
                 const thresholdPct = sensor.threshold !== undefined && sensor.max !== sensor.min
                   ? ((sensor.threshold - sensor.min) / (sensor.max - sensor.min)) * 100
@@ -428,19 +483,21 @@ export default function MachinesPage() {
                     : state === 'warning'
                     ? styles.sensorGaugeFillWarning
                     : styles.sensorGaugeFillNormal;
-                const gaugeClass = state === 'critical' ? styles.sensorGaugeCritical : '';
+                const gaugeClass = state === 'critical' ? styles.sensorGaugeCritical
+                  : state === 'warning' ? styles.sensorGaugeWarning
+                  : '';
 
                 return (
                   <div key={key} className={`${styles.sensorGauge} ${gaugeClass}`}>
                     <div className={styles.sensorGaugeHeader}>
                       <span className={styles.sensorGaugeName}>
-                        <SIcon size={13} className={styles.sensorGaugeNameIcon} />
+                        <SIcon size={13} className={`${styles.sensorGaugeNameIcon} ${state !== 'normal' ? (state === 'critical' ? styles.sensorGaugeIconCritical : styles.sensorGaugeIconWarning) : ''}`} />
                         {formatSensorName(key)}
                       </span>
                       <span
-                        className={`${styles.sensorGaugeReading} ${state === 'critical' ? styles.sensorGaugeReadingCritical : ''}`}
+                        className={`${styles.sensorGaugeReading} ${state === 'critical' ? styles.sensorGaugeReadingCritical : state === 'warning' ? styles.sensorGaugeReadingWarning : styles.sensorGaugeReadingNormal}`}
                       >
-                        {sensor.value}
+                        {liveValue}
                         {sensor.unit}
                         {state === 'critical' && (
                           <AlertTriangle

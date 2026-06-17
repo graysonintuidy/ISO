@@ -117,10 +117,10 @@
 .messagesArea {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-4);
+  padding: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
   scroll-behavior: smooth;
 }
 
@@ -258,10 +258,10 @@
 }
 
 .messageBubble {
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .bubbleUser {

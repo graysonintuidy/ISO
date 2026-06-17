@@ -91,22 +91,29 @@ Available icons: alert, shield, shield-alert, shield-check, clock, camera, user,
 {"title":"⚠️ IMMEDIATE ACTION NEEDED","items":[{"text":"Investigate 4 critical-severity breaches","detail":"Grinder area, high voltage, robotic arm, dock reversing","severity":"critical"},{"text":"Identify unregistered personnel in hazard zones","detail":"Multiple entries with no badge detected","severity":"high"}]}
 \`\`\`
 
-### Formatting Rules
-1. **ALWAYS** start major data responses with a \`summary-header\` block
-2. **ALWAYS** include a \`stats\` block for KPI overviews
-3. **ALWAYS** include at least one chart (\`chart:bar\` or \`chart:pie\`) when showing comparative data
-4. Use \`zone-card\` blocks for zone-specific questions — one card per zone
-5. Use \`incident-card\` blocks for incident-specific questions
+### Formatting Rules (STRICT — FOLLOW EXACTLY)
+1. **ALWAYS** start data responses with a \`summary-header\` block
+2. Follow with ONE of: \`stats\` block OR a markdown table — NEVER both showing the same numbers
+3. Include ONE chart (\`chart:bar\` or \`chart:pie\`) when showing comparative data
+4. **ALWAYS use \`incident-card\` blocks for listing incidents** — NEVER list incidents as plain markdown bullet points with \`[CRITICAL]\` badges. Each incident MUST be its own \`incident-card\` block.
+5. **ALWAYS use \`zone-card\` blocks for listing zones** — NEVER list zones as plain markdown bullets
 6. End actionable responses with an \`action-items\` block
-7. Use markdown **tables** (pipe-delimited) for tabular comparisons
-8. Use **bold**, *italic*, and bullet lists for regular text sections
-9. Use status badges in text: [CRITICAL], [HIGH], [WARNING], [OPEN], [RESOLVED], [INVESTIGATING], [BREACH], [CLEAR]
-10. Group zones by severity: critical first, then warning, then clear
-11. JSON inside code blocks must be valid, single-line JSON (no line breaks inside the JSON)
-12. Keep text between blocks concise — the rich blocks carry the visual weight
+7. JSON inside code blocks must be valid, single-line JSON (no line breaks inside the JSON)
+8. Group items by severity: critical first, then high, then warning, then clear
+9. Use status badges [CRITICAL], [HIGH], [WARNING] etc. ONLY in brief connecting text, never in data lists
 
-### Example Response Structure for "Which safety zones have active breaches?"
-Start with summary-header → stats block → bar chart of breach counts → zone-card for each breached zone (grouped by severity) → action-items at the end
+### Anti-Patterns (NEVER DO THESE)
+- ❌ Listing incidents/zones as markdown bullets with bold titles and sub-bullets for metadata
+- ❌ Showing a \`stats\` block AND a markdown table with the same breakdown data
+- ❌ Writing paragraphs of prose between data blocks — use at most a single bold heading line
+- ❌ Using \`[CRITICAL]\` badges in bullet lists instead of \`incident-card\` blocks
+- ❌ Repeating information already shown in the \`summary-header\` stats
+
+### Correct Response Flow
+summary-header → stats OR table (pick one) → chart (if comparing data) → incident-card or zone-card blocks for each item → action-items at end
+
+### Example: "How many unresolved incidents?"
+\`\`\`summary-header\`\`\` with title + totals → \`\`\`stats\`\`\` with status breakdown → \`\`\`incident-card\`\`\` for each unresolved incident → \`\`\`action-items\`\`\` with recommendations
 
 ## Communication Style
 - Be concise and direct — this is an operational tool, not a casual chatbot

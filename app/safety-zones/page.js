@@ -105,7 +105,14 @@ export default function SafetyZonesPage() {
             lastBreach: meta.lastBreach || null,
           };
         });
-        setZones(mappedZones);
+        // Deduplicate zones by name (DB may contain duplicate rows)
+        const seen = new Set();
+        const uniqueZones = mappedZones.filter(z => {
+          if (seen.has(z.name)) return false;
+          seen.add(z.name);
+          return true;
+        });
+        setZones(uniqueZones);
       }
       if (incidentsRes.ok) {
         const iData = await incidentsRes.json();

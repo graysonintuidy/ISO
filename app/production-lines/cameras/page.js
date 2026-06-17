@@ -58,39 +58,16 @@ function severityIcon(severity, size = 14) {
   }
 }
 
-/* ---------- SVG Gauge Component ---------- */
-function ConfidenceGauge({ value, aiStatus }) {
-  const radius = 48;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (value / 100) * circumference;
-
-  let fillClass = styles.gaugeFillSuccess;
-  if (aiStatus === 'warning') fillClass = styles.gaugeFillWarning;
-  if (aiStatus === 'critical') fillClass = styles.gaugeFillCritical;
+/* ---------- Compact Confidence Badge ---------- */
+function ConfidenceBadge({ value, aiStatus }) {
+  let statusClass = styles.confidenceBadgeSuccess;
+  if (aiStatus === 'warning') statusClass = styles.confidenceBadgeWarning;
+  if (aiStatus === 'critical') statusClass = styles.confidenceBadgeCritical;
 
   return (
-    <div className={styles.gaugeCard}>
-      <div className={styles.gaugeTitle}>AI Confidence</div>
-      <div className={styles.gaugeWrap}>
-        <svg className={styles.gaugeSvg} viewBox="0 0 120 120">
-          <circle className={styles.gaugeTrack} cx="60" cy="60" r={radius} />
-          <circle
-            className={`${styles.gaugeFill} ${fillClass}`}
-            cx="60"
-            cy="60"
-            r={radius}
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-          />
-        </svg>
-        <div className={styles.gaugeValueLabel}>
-          <span className={styles.gaugePercent}>
-            {value.toFixed(1)}
-            <span className={styles.gaugePercentUnit}>%</span>
-          </span>
-        </div>
-      </div>
-      <div className={styles.gaugeLabel}>Model certainty score</div>
+    <div className={`${styles.confidenceBadge} ${statusClass}`}>
+      <span className={styles.confidenceBadgeValue}>{value.toFixed(1)}</span>
+      <span className={styles.confidenceBadgeUnit}>%</span>
     </div>
   );
 }
@@ -105,6 +82,56 @@ export default function ProductionLineCamerasPage() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCameraId, setSelectedCameraId] = useState(null);
+
+  /* ---------- Mock event generator ---------- */
+  const generateMockEvents = useCallback((cameraId, lineNumber) => {
+    const now = Date.now();
+    const min = (m) => m * 60 * 1000;
+
+    const eventTemplates = [
+      // Foreign object detections
+      { object: 'Metal Fragment', severity: 'critical', action: 'Line paused automatically', confidence: 96 },
+      { object: 'Plastic Shard', severity: 'critical', action: 'Flagged for review', confidence: 94 },
+      { object: 'Bone Fragment', severity: 'warning', action: 'Flagged for review', confidence: 88 },
+      { object: 'Rubber Piece', severity: 'warning', action: 'Operator notified', confidence: 82 },
+      { object: 'Wire Fragment', severity: 'critical', action: 'Line paused automatically', confidence: 97 },
+      // PPE violations
+      { object: 'Missing Hairnet', severity: 'warning', action: 'Supervisor alerted', confidence: 91 },
+      { object: 'Missing Gloves', severity: 'warning', action: 'Supervisor alerted', confidence: 87 },
+      { object: 'Improper Apron', severity: 'info', action: 'Logged', confidence: 79 },
+      // Zone intrusions
+      { object: 'Unauthorized Zone Entry', severity: 'critical', action: 'Security alerted', confidence: 95 },
+      { object: 'Restricted Area Breach', severity: 'warning', action: 'Supervisor alerted', confidence: 90 },
+      // Process anomalies
+      { object: 'Belt Speed Anomaly', severity: 'info', action: 'Logged', confidence: 85 },
+      { object: 'Product Overlap', severity: 'info', action: 'Flagged for review', confidence: 83 },
+      { object: 'Conveyor Jam Detected', severity: 'warning', action: 'Operator notified', confidence: 92 },
+      { object: 'Temperature Excursion', severity: 'critical', action: 'QA team notified', confidence: 93 },
+      { object: 'Spill Detected', severity: 'warning', action: 'Cleanup crew dispatched', confidence: 86 },
+      { object: 'Packaging Defect', severity: 'info', action: 'Logged', confidence: 80 },
+    ];
+
+    // Use lineNumber as a seed offset so each camera gets a different set
+    const seed = (cameraId * 7 + lineNumber * 13) % eventTemplates.length;
+    const count = 4 + (lineNumber % 3) + (cameraId % 2); // 4-6 events per camera
+
+    const events = [];
+    for (let i = 0; i < count; i++) {
+      const template = eventTemplates[(seed + i * 3) % eventTemplates.length];
+      const timeAgo = min(2 + i * 8 + (cameraId % 5) * 3); // stagger timestamps
+      events.push({
+        id: `mock-${cameraId}-${i}`,
+        timestamp: new Date(now - timeAgo).toISOString(),
+        type: 'detection',
+        severity: template.severity,
+        object: template.object,
+        confidence: template.confidence + ((cameraId + i) % 5) - 2, // slight variance
+        action: template.action,
+        resolved: i >= count - 1, // last event resolved
+      });
+    }
+    return events;
+  }, []);
 
   const fetchCameras = useCallback(async () => {
     try {
@@ -135,20 +162,23 @@ export default function ProductionLineCamerasPage() {
           .map(cam => {
             const config = typeof cam.config === 'string' ? JSON.parse(cam.config) : (cam.config || {});
             const camEvents = eventsByCamera[cam.id] || [];
+            const lineNum = config.lineNumber || 1;
+            // Use API events if available, otherwise generate mock events
+            const finalEvents = camEvents.length > 0 ? camEvents : generateMockEvents(cam.id, lineNum);
             return {
               id: cam.id,
               name: cam.name,
               line: config.line || 'Line 1',
-              lineNumber: config.lineNumber || 1,
+              lineNumber: lineNum,
               location: cam.location_description || config.line || '',
               cameraType: config.cameraType || 'AI Vision \u2014 Top-Down',
               status: cam.status,
               aiStatus: config.aiStatus || 'clear',
               aiConfidence: config.aiConfidence || 98,
-              detections: config.detections || camEvents.filter(e => !e.resolved).length,
+              detections: config.detections || finalEvents.filter(e => !e.resolved).length,
               image: config.image || null,
-              lastDetection: camEvents[0]?.timestamp || null,
-              events: camEvents,
+              lastDetection: finalEvents[0]?.timestamp || null,
+              events: finalEvents,
             };
           });
         setCameras(lineCameras);
@@ -158,7 +188,7 @@ export default function ProductionLineCamerasPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [generateMockEvents]);
 
   useEffect(() => {
     fetchCameras();
@@ -308,12 +338,7 @@ export default function ProductionLineCamerasPage() {
             AI-powered foreign object detection across production lines
           </p>
         </div>
-        <div className={styles.headerActions}>
-          <button className="btn btn-secondary" disabled>
-            <ScanEye size={16} />
-            AI Model v3.2
-          </button>
-        </div>
+
       </div>
 
       {/* ============ Status Summary Bar ============ */}
@@ -469,14 +494,15 @@ export default function ProductionLineCamerasPage() {
               {renderAiBadge(selectedCamera)}
             </div>
 
-            {/* Sidebar: gauge + events */}
+            {/* Sidebar: confidence badge + events */}
             <div className={styles.detailSidebar}>
-              <ConfidenceGauge
-                value={selectedCamera.aiConfidence}
-                aiStatus={selectedCamera.aiStatus}
-              />
-
-              <div className={styles.detailEventsTitle}>Detection Events</div>
+              <div className={styles.sidebarHeader}>
+                <ConfidenceBadge
+                  value={selectedCamera.aiConfidence}
+                  aiStatus={selectedCamera.aiStatus}
+                />
+                <div className={styles.detailEventsTitle}>Detection Events</div>
+              </div>
               <div className={styles.detailEvents}>
                 {selectedCamera.events.length > 0 ? (
                   selectedCamera.events.map((evt) => {

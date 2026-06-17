@@ -7,45 +7,44 @@
 .responseContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
   width: 100%;
 }
 
 /* ── Rich Text (enhanced markdown) ────────────────────── */
 .richText {
   font-size: var(--text-sm);
-  line-height: 1.7;
+  line-height: 1.5;
   color: var(--color-text-primary);
 }
 
 .richText h1 {
   font-size: var(--text-lg);
   font-weight: 700;
-  margin: var(--space-3) 0 var(--space-2);
+  margin: var(--space-2) 0 var(--space-1);
   color: var(--color-text-primary);
   font-family: var(--font-heading);
   letter-spacing: -0.01em;
   border-bottom: 1px solid var(--color-border);
-  padding-bottom: var(--space-2);
+  padding-bottom: var(--space-1);
 }
 
 .richText h2 {
   font-size: var(--text-base);
   font-weight: 700;
-  margin: var(--space-3) 0 var(--space-1);
+  margin: var(--space-2) 0 var(--space-1);
   color: var(--color-text-primary);
   font-family: var(--font-heading);
   letter-spacing: -0.01em;
 }
 
 .richText h3 {
-  font-size: var(--text-sm);
+  font-size: 0.7rem;
   font-weight: 700;
-  margin: var(--space-2) 0 var(--space-1);
+  margin: var(--space-1) 0 4px;
   color: var(--color-text-primary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 0.7rem;
 }
 
 .richText h4 {
@@ -62,17 +61,17 @@
 }
 
 .richText p {
-  margin: var(--space-1) 0;
+  margin: 2px 0;
 }
 
 .richText ul,
 .richText ol {
-  margin: var(--space-1) 0;
-  padding-left: var(--space-4);
+  margin: 2px 0;
+  padding-left: var(--space-3);
 }
 
 .richText li {
-  margin: 3px 0;
+  margin: 1px 0;
   padding-left: 2px;
 }
 
@@ -114,7 +113,7 @@
 .richText hr {
   border: none;
   border-top: 1px solid var(--color-border);
-  margin: var(--space-3) 0;
+  margin: var(--space-2) 0;
 }
 
 /* ── Inline Badge ─────────────────────────────────────── */
@@ -133,7 +132,7 @@
 /* ── Tables ───────────────────────────────────────────── */
 .tableWrapper {
   overflow-x: auto;
-  margin: var(--space-2) 0;
+  margin: var(--space-1) 0;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
 }
@@ -151,7 +150,7 @@
 }
 
 .table th {
-  padding: var(--space-2) var(--space-3);
+  padding: 6px var(--space-2);
   font-weight: 600;
   font-size: 0.7rem;
   color: var(--color-text-secondary);
@@ -161,7 +160,7 @@
 }
 
 .table td {
-  padding: var(--space-2) var(--space-3);
+  padding: 6px var(--space-2);
   border-top: 1px solid var(--color-border-subtle);
   color: var(--color-text-primary);
   vertical-align: middle;
@@ -177,7 +176,7 @@
 
 /* ── Chart Block ──────────────────────────────────────── */
 .chartBlock {
-  margin: var(--space-2) 0;
+  margin: var(--space-1) 0;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
@@ -185,8 +184,8 @@
 }
 
 .chartTitle {
-  padding: var(--space-2) var(--space-3);
-  font-size: 0.75rem;
+  padding: 6px var(--space-2);
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--color-text-primary);
   border-bottom: 1px solid var(--color-border);
@@ -196,7 +195,7 @@
 }
 
 .chartContainer {
-  padding: var(--space-3);
+  padding: var(--space-2);
 }
 
 /* ── Pie Chart Legend ─────────────────────────────────── */
@@ -235,17 +234,17 @@
 /* ── Stats Grid ───────────────────────────────────────── */
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: var(--space-2);
-  margin: var(--space-2) 0;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 6px;
+  margin: var(--space-1) 0;
 }
 
 .statCard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-3);
+  gap: 2px;
+  padding: var(--space-2) var(--space-2);
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
@@ -264,7 +263,7 @@
 }
 
 .statValue {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   font-family: var(--font-mono);
   color: var(--color-text-primary);
@@ -281,7 +280,7 @@
 
 /* ── Summary Header ───────────────────────────────────── */
 .summaryHeader {
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   border-left: 3px solid var(--color-primary);
@@ -325,9 +324,9 @@
 
 .summaryStats {
   display: flex;
-  gap: var(--space-4);
-  margin-top: var(--space-3);
-  padding-top: var(--space-2);
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  padding-top: var(--space-1);
   border-top: 1px solid var(--color-border);
 }
 
@@ -352,12 +351,12 @@
 
 /* ── Zone Card ────────────────────────────────────────── */
 .zoneCard {
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   border-left: 3px solid var(--color-primary);
   background: var(--color-surface);
-  margin: var(--space-1) 0;
+  margin: 4px 0;
   transition: box-shadow var(--transition-fast);
 }
 
@@ -370,7 +369,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
 }
 
 .zoneCardTitle {
@@ -411,8 +410,8 @@
 .zoneCardMeta {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-bottom: var(--space-2);
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
 }
 
 .zoneMeta {
@@ -436,8 +435,8 @@
 
 .zoneCardStats {
   display: flex;
-  gap: var(--space-4);
-  padding: var(--space-2) 0;
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
 }
 
 .zoneStatItem {
@@ -507,19 +506,19 @@
 
 /* ── Incident Card (standalone) ───────────────────────── */
 .incidentCard {
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   border-left: 3px solid var(--color-warning);
   background: var(--color-surface);
-  margin: var(--space-1) 0;
+  margin: 4px 0;
 }
 
 .incidentCardHeader {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
 }
 
 .incidentSeverity {
@@ -543,14 +542,14 @@
 .incidentCardDesc {
   font-size: 0.75rem;
   color: var(--color-text-secondary);
-  line-height: 1.5;
-  margin-bottom: var(--space-2);
+  line-height: 1.4;
+  margin-bottom: var(--space-1);
 }
 
 .incidentCardMeta {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  gap: var(--space-2);
   font-size: 0.7rem;
   color: var(--color-text-tertiary);
 }
@@ -563,7 +562,7 @@
 
 /* ── Action Items ─────────────────────────────────────── */
 .actionItemsBlock {
-  margin: var(--space-2) 0;
+  margin: var(--space-1) 0;
 }
 
 .actionItemsTitle {
@@ -590,14 +589,14 @@
 .actionItemsList {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 6px;
 }
 
 .actionItem {
   display: flex;
   align-items: flex-start;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
+  padding: 6px var(--space-2);
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   border-left: 3px solid var(--color-warning);

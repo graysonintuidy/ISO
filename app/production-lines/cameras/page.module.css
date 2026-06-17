@@ -595,96 +595,59 @@
 }
 
 /* ============================================================
-   AI CONFIDENCE GAUGE
+   COMPACT CONFIDENCE BADGE
    ============================================================ */
 .detailSidebar {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 0;
+  height: 100%;
 }
 
-.gaugeCard {
-  padding: var(--space-4);
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  text-align: center;
-}
-
-.gaugeTitle {
-  font-size: var(--text-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-tertiary);
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
   margin-bottom: var(--space-3);
 }
 
-.gaugeWrap {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto var(--space-3);
-}
-
-.gaugeSvg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.gaugeTrack {
-  fill: none;
-  stroke: var(--color-border);
-  stroke-width: 8;
-}
-
-.gaugeFill {
-  fill: none;
-  stroke-width: 8;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.8s ease, stroke 0.3s ease;
-}
-
-.gaugeFillSuccess {
-  stroke: var(--color-success);
-}
-
-.gaugeFillWarning {
-  stroke: var(--color-warning);
-}
-
-.gaugeFillCritical {
-  stroke: var(--color-error);
-}
-
-.gaugeValueLabel {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.gaugePercent {
-  font-size: var(--text-2xl);
-  font-weight: 800;
+.confidenceBadge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full, 9999px);
   font-family: var(--font-heading);
   line-height: 1;
-  color: var(--color-text-primary);
+  flex-shrink: 0;
 }
 
-.gaugePercentUnit {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--color-text-tertiary);
+.confidenceBadgeSuccess {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--color-success);
 }
 
-.gaugeLabel {
+.confidenceBadgeWarning {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--color-warning);
+}
+
+.confidenceBadgeCritical {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--color-error);
+}
+
+.confidenceBadgeValue {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.confidenceBadgeUnit {
   font-size: var(--text-xs);
-  color: var(--color-text-tertiary);
-  font-weight: 500;
+  font-weight: 600;
+  opacity: 0.7;
 }
 
 /* Detection events inside expanded detail */
@@ -693,7 +656,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  max-height: 300px;
   overflow-y: auto;
 }
 
@@ -703,7 +665,6 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-tertiary);
-  margin-bottom: var(--space-2);
 }
 
 .detailEventRow {
